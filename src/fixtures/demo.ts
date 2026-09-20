@@ -17,6 +17,46 @@ function hashString(text: string): number {
   return hash;
 }
 
+/**
+ * 데모 모드용 "더빙" 오디오. 실제 TTS 대신 허밍 톤을 생성해 오디오 길이/싱크 로직을
+ * API 호출 없이 검증할 수 있게 한다. 길이는 실제 TTS 대체 시 사용하는 것과 동일한
+ * 초당 5.5음절 기준으로 계산한다.
+ */
+export function generateDemoDubbingBlob(narrationLength: number): { blob: Blob; durationSeconds: number } {
+  const sampleRate = 24000;
+  const durationSeconds = Math.max(2.5, narrationLength / 5.5);
+  const sampleCount = Math.floor(sampleRate * durationSeconds);
+  const pcm = new Int16Array(sampleCount);
+  const freq = 220;
+  for (let i = 0; i < sampleCount; i++) {
+    const t = i / sampleRate;
+    const envelope = Math.min(1, i / 500, (sampleCount - i) / 500); // 클릭 노이즈 방지 페이드
+    pcm[i] = Math.round(Math.sin(2 * Math.PI * freq * t) * 3000 * envelope);
+  }
+
+  const header = new ArrayBuffer(44);
+  const view = new DataView(header);
+  const writeString = (offset: number, str: string) => {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  };
+  const dataSize = pcm.length * 2;
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeString(36, "data");
+  view.setUint32(40, dataSize, true);
+
+  return { blob: new Blob([header, pcm.buffer], { type: "audio/wav" }), durationSeconds };
+}
+
 /** 데모 모드용 그라데이션 샘플 이미지를 캔버스로 그린다(API 호출 없이 렌더링 엔진 검증용). */
 export async function generateDemoImageBlob(label: string, aspect: Aspect): Promise<Blob> {
   const ratio = ASPECT_RATIO[aspect];

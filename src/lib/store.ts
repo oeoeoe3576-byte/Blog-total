@@ -10,7 +10,18 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { ApiKeys } from "./providers/types";
-import type { BlogResult, Product, Scene, SceneImage, ThreadsResult } from "./types";
+import type { BlogResult, Product, Scene, SceneImage, ThreadsResult, VideoSettings } from "./types";
+
+export const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
+  title: "",
+  style: "auto",
+  headline: { font: "Black Han Sans", size: "normal", color: "auto", background: "auto" },
+  sub: { font: "Pretendard", size: "normal", color: "#ffffff", background: "auto" },
+  dubbing: false,
+  voice: "ko-KR-SunHiNeural",
+  rate: 1,
+  resolution: "720p",
+};
 
 export interface ImagePromptEntry {
   ko: string;
@@ -52,6 +63,9 @@ interface AppState {
   productImageKeys: string[];
   imagePrompts: Record<string, ImagePromptEntry>;
   sceneImages: SceneImage[];
+  videoSettings: VideoSettings;
+  videoBlobKey: string | null;
+  dubbingAudioKeys: Record<string, string>;
 
   setApiKey: (provider: keyof ApiKeys, value: string) => void;
   clearApiKey: (provider: keyof ApiKeys) => void;
@@ -77,6 +91,12 @@ interface AppState {
   removeSceneImage: (id: string) => void;
   setSceneImageUsed: (sceneId: string, imageId: string) => void;
   resetImages: () => void;
+
+  setVideoSettings: (patch: Partial<VideoSettings>) => void;
+  setVideoBlobKey: (key: string | null) => void;
+  setDubbingAudioKey: (sceneId: string, key: string) => void;
+  clearDubbingAudioKeys: () => void;
+  resetVideo: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -92,6 +112,9 @@ export const useAppStore = create<AppState>()(
       productImageKeys: [],
       imagePrompts: {},
       sceneImages: [],
+      videoSettings: DEFAULT_VIDEO_SETTINGS,
+      videoBlobKey: null,
+      dubbingAudioKeys: {},
 
       setApiKey: (provider, value) =>
         set((s) => ({
@@ -153,6 +176,15 @@ export const useAppStore = create<AppState>()(
       resetImages: () =>
         set({ productImageKeys: [], imagePrompts: {}, sceneImages: [] }),
 
+      setVideoSettings: (patch) =>
+        set((s) => ({ videoSettings: { ...s.videoSettings, ...patch } })),
+      setVideoBlobKey: (videoBlobKey) => set({ videoBlobKey }),
+      setDubbingAudioKey: (sceneId, key) =>
+        set((s) => ({ dubbingAudioKeys: { ...s.dubbingAudioKeys, [sceneId]: key } })),
+      clearDubbingAudioKeys: () => set({ dubbingAudioKeys: {} }),
+      resetVideo: () =>
+        set({ videoBlobKey: null, dubbingAudioKeys: {}, videoSettings: DEFAULT_VIDEO_SETTINGS }),
+
       addSessionCost: (won) =>
         set((s) => ({
           cost: {
@@ -178,6 +210,9 @@ export const useAppStore = create<AppState>()(
         productImageKeys: s.productImageKeys,
         imagePrompts: s.imagePrompts,
         sceneImages: s.sceneImages,
+        videoSettings: s.videoSettings,
+        videoBlobKey: s.videoBlobKey,
+        dubbingAudioKeys: s.dubbingAudioKeys,
       }),
       skipHydration: true,
     },

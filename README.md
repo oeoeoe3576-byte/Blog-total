@@ -45,6 +45,22 @@
   - Edge TTS는 이 샌드박스 환경에서 아웃바운드가 막혀 있어 항상 실패하지만, 그 실패가
     조용히 다음 프로바이더로 넘어가며 서버가 죽지 않는 것까지 실제로 확인함(정상 시나리오)
 
+- **Phase 5 — 영상 렌더링 엔진**: 완료
+  - `lib/video/timeline.ts`: 더빙 유무에 따른 장면 길이 계산(오디오 길이+0.3초 또는
+    글자수/5.5초), 내레이션 자막 청크 분할 — vitest 7건
+  - `lib/video/textLayout.ts`: 캔버스 텍스트 줄바꿈(공백→글자 단위 폴백), `[[강조]]` 파싱 — vitest 4건
+  - `lib/video/renderer.ts`: 미리보기와 녹화가 공유하는 `drawFrame()` 순수 함수.
+    켄 번스 모션, 장면 전환 크로스페이드, 감성/시네마틱 톤, 이미지 디코딩 실패 시
+    그라데이션 폴백(실제 e2e 테스트에서 감지된 "ImageBitmap detached" 예외를 잡아 처리)
+  - `lib/video/recorder.ts`: Canvas.captureStream + WebAudio + MediaRecorder 합성,
+    AudioContext.currentTime을 마스터 클록으로 사용해 싱크 유지, 취소(AbortSignal) 지원
+  - Step5Video UI: 실시간 미리보기, 클립 스타일/자막 스타일/더빙/해상도 설정,
+    Web Speech 미리듣기, 탭 이탈 경고, 50초 초과 경고, 녹화 진행률/취소/다운로드
+  - 데모 모드 더빙: 실제 TTS 없이 허밍 톤(WAV)을 생성해 오디오 길이 기반 싱크 로직을 검증
+  - Playwright로 실제 브라우저에서 확인: 데모 모드로 더빙 ON 상태의 약 40초 영상을
+    실제 녹화 시간(약 40.7초)만큼 걸려 완성 → 재생·다운로드 가능함을 확인. 렌더러 수정 전에는
+    드물게 `ImageBitmap` detach로 인한 콘솔 예외가 있었는데, try/catch 폴백 추가 후 재현되지 않음을 확인
+
 ## 로컬 실행
 
 ```bash
@@ -87,3 +103,7 @@ npm run test
 - Edge TTS(`msedge-tts`)는 이 샌드박스의 아웃바운드 제한으로 항상 403을 반환했습니다. 비공식 API라
   언제든 막힐 수 있다는 전제로 설계했고, 실패 시 다음 프로바이더로 넘어가는 동작은 실제로 확인했습니다.
 - 이 개발 환경은 외부 네트워크 egress가 제한되어 있어 Pretendard/Google Fonts CDN 로딩을 로컬에서 직접 확인하지 못했습니다. Vercel 배포 환경에서는 정상 로드되는지 확인이 필요합니다.
+- Chrome이 `MediaRecorder`로 만든 WebM 파일의 `duration` 메타데이터를 즉시 계산하지 못해
+  `<video>` 엘리먼트가 한동안 `Infinity`를 보고하는 경우가 있습니다(널리 알려진 Chrome/WebM
+  자체의 한계이며 재생 자체는 끝까지 정상 동작합니다). 정확한 길이 표시가 꼭 필요하면
+  Phase 6의 MP4 변환을 거치거나 별도의 duration-fix 라이브러리 적용을 검토하세요.
