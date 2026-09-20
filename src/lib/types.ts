@@ -46,6 +46,8 @@ export interface SceneImage {
   provider: string;
   source: SceneImageSource;
   used: boolean;
+  /** 스톡 이미지 출처 크레딧(작가명 등). 발행 패키지의 credits.txt에 쓰인다. */
+  credit?: string;
 }
 
 export type ClipStyle = "auto" | "emotional" | "cinematic";

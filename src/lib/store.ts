@@ -10,7 +10,12 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { ApiKeys } from "./providers/types";
-import type { BlogResult, Product, Scene, ThreadsResult } from "./types";
+import type { BlogResult, Product, Scene, SceneImage, ThreadsResult } from "./types";
+
+export interface ImagePromptEntry {
+  ko: string;
+  en: string;
+}
 
 export interface CostState {
   /** 이번 세션 동안 발생한 예상 누적 비용(원) */
@@ -44,6 +49,9 @@ interface AppState {
   blogResult: BlogResult | null;
   threadsResult: ThreadsResult | null;
   scenes: Scene[] | null;
+  productImageKeys: string[];
+  imagePrompts: Record<string, ImagePromptEntry>;
+  sceneImages: SceneImage[];
 
   setApiKey: (provider: keyof ApiKeys, value: string) => void;
   clearApiKey: (provider: keyof ApiKeys) => void;
@@ -61,6 +69,14 @@ interface AppState {
   setScenes: (scenes: Scene[] | null) => void;
   updateScene: (id: string, patch: Partial<Scene>) => void;
   resetScript: () => void;
+
+  addProductImageKey: (key: string) => void;
+  removeProductImageKey: (key: string) => void;
+  setImagePrompt: (sceneId: string, entry: ImagePromptEntry) => void;
+  addSceneImage: (image: SceneImage) => void;
+  removeSceneImage: (id: string) => void;
+  setSceneImageUsed: (sceneId: string, imageId: string) => void;
+  resetImages: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -73,6 +89,9 @@ export const useAppStore = create<AppState>()(
       blogResult: null,
       threadsResult: null,
       scenes: null,
+      productImageKeys: [],
+      imagePrompts: {},
+      sceneImages: [],
 
       setApiKey: (provider, value) =>
         set((s) => ({
@@ -114,6 +133,26 @@ export const useAppStore = create<AppState>()(
         })),
       resetScript: () => set({ scenes: null }),
 
+      addProductImageKey: (key) =>
+        set((s) => ({ productImageKeys: [...s.productImageKeys, key] })),
+      removeProductImageKey: (key) =>
+        set((s) => ({ productImageKeys: s.productImageKeys.filter((k) => k !== key) })),
+
+      setImagePrompt: (sceneId, entry) =>
+        set((s) => ({ imagePrompts: { ...s.imagePrompts, [sceneId]: entry } })),
+
+      addSceneImage: (image) => set((s) => ({ sceneImages: [...s.sceneImages, image] })),
+      removeSceneImage: (id) =>
+        set((s) => ({ sceneImages: s.sceneImages.filter((img) => img.id !== id) })),
+      setSceneImageUsed: (sceneId, imageId) =>
+        set((s) => ({
+          sceneImages: s.sceneImages.map((img) =>
+            img.sceneId === sceneId ? { ...img, used: img.id === imageId } : img,
+          ),
+        })),
+      resetImages: () =>
+        set({ productImageKeys: [], imagePrompts: {}, sceneImages: [] }),
+
       addSessionCost: (won) =>
         set((s) => ({
           cost: {
@@ -136,6 +175,9 @@ export const useAppStore = create<AppState>()(
         blogResult: s.blogResult,
         threadsResult: s.threadsResult,
         scenes: s.scenes,
+        productImageKeys: s.productImageKeys,
+        imagePrompts: s.imagePrompts,
+        sceneImages: s.sceneImages,
       }),
       skipHydration: true,
     },

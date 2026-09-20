@@ -1,6 +1,57 @@
 // 데모 모드용 샘플 데이터. API 키 없이 전체 파이프라인을 검증하는 용도다(PROMPT.md 11절).
 
 import type { Product, Scene } from "@/lib/types";
+import { ASPECT_RATIO, type Aspect } from "@/lib/imageUtils";
+
+const GRADIENT_PALETTE: [string, string][] = [
+  ["#f97316", "#facc15"],
+  ["#06b6d4", "#3b82f6"],
+  ["#ec4899", "#8b5cf6"],
+  ["#22c55e", "#84cc16"],
+  ["#f43f5e", "#f97316"],
+];
+
+function hashString(text: string): number {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+  return hash;
+}
+
+/** 데모 모드용 그라데이션 샘플 이미지를 캔버스로 그린다(API 호출 없이 렌더링 엔진 검증용). */
+export async function generateDemoImageBlob(label: string, aspect: Aspect): Promise<Blob> {
+  const ratio = ASPECT_RATIO[aspect];
+  const longSide = 800;
+  const width = ratio >= 1 ? longSide : Math.round(longSide * ratio);
+  const height = ratio >= 1 ? Math.round(longSide / ratio) : longSide;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("캔버스를 사용할 수 없어요.");
+
+  const [c1, c2] = GRADIENT_PALETTE[hashString(label) % GRADIENT_PALETTE.length];
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, c1);
+  gradient.addColorStop(1, c2);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.fillStyle = "rgba(255,255,255,0.9)";
+  ctx.font = "bold 28px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const text = label.length > 20 ? label.slice(0, 20) + "…" : label;
+  ctx.fillText(text, width / 2, height / 2, width - 40);
+
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error("데모 이미지 생성에 실패했어요."))),
+      "image/jpeg",
+      0.9,
+    );
+  });
+}
 
 export const DEMO_PRODUCT: Product = {
   name: "포근한 극세사 극세사 이불 세트",

@@ -9,6 +9,7 @@ import { StoreHydrator } from "@/components/StoreHydrator";
 import { Step1Blog } from "@/components/steps/Step1Blog";
 import { Step2Threads } from "@/components/steps/Step2Threads";
 import { Step3Script } from "@/components/steps/Step3Script";
+import { Step4Images } from "@/components/steps/Step4Images";
 import { useAppStore } from "@/lib/store";
 
 export default function Home() {
@@ -21,8 +22,13 @@ export default function Home() {
   const resetThreads = useAppStore((s) => s.resetThreads);
   const scenes = useAppStore((s) => s.scenes);
   const resetScript = useAppStore((s) => s.resetScript);
+  const sceneImages = useAppStore((s) => s.sceneImages);
+  const resetImages = useAppStore((s) => s.resetImages);
 
-  const currentStep = scenes ? 4 : threadsResult ? 3 : blogResult ? 2 : 1;
+  const allScenesHaveImages =
+    !!scenes && scenes.length > 0 && scenes.every((sc) => sceneImages.some((img) => img.sceneId === sc.id && img.used));
+
+  const currentStep = allScenesHaveImages ? 5 : scenes ? 4 : threadsResult ? 3 : blogResult ? 2 : 1;
 
   const steps: {
     title: string;
@@ -55,8 +61,9 @@ export default function Home() {
     {
       title: "이미지",
       description: "장면별 이미지를 확보하고 비율에 맞게 준비해요.",
-      status: "대기",
-      content: <p className="text-sm text-gray-400">이 단계는 다음 Phase에서 구현돼요.</p>,
+      status: allScenesHaveImages ? "완료" : "대기",
+      onRestart: sceneImages.length > 0 ? resetImages : undefined,
+      content: <Step4Images />,
     },
     {
       title: "클립 커넥트 영상",

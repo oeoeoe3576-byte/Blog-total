@@ -15,3 +15,15 @@ export const scriptResponseSchema = z.object({
 });
 
 export type ScriptResponse = z.infer<typeof scriptResponseSchema>;
+
+export const imagePromptSchema = z.object({
+  sceneId: z.string().min(1),
+  ko: z.string().min(1),
+  en: z.string().min(1),
+});
+
+export const imagePromptsResponseSchema = z.object({
+  prompts: z.array(imagePromptSchema).min(1),
+});
+
+export type ImagePromptsResponse = z.infer<typeof imagePromptsResponseSchema>;
