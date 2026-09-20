@@ -10,7 +10,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { ApiKeys } from "./providers/types";
-import type { BlogResult, Product } from "./types";
+import type { BlogResult, Product, Scene, ThreadsResult } from "./types";
 
 export interface CostState {
   /** 이번 세션 동안 발생한 예상 누적 비용(원) */
@@ -42,6 +42,8 @@ interface AppState {
   hasHydrated: boolean;
   product: Product | null;
   blogResult: BlogResult | null;
+  threadsResult: ThreadsResult | null;
+  scenes: Scene[] | null;
 
   setApiKey: (provider: keyof ApiKeys, value: string) => void;
   clearApiKey: (provider: keyof ApiKeys) => void;
@@ -54,6 +56,11 @@ interface AppState {
   setProduct: (product: Product) => void;
   setBlogResult: (result: BlogResult | null) => void;
   resetBlog: () => void;
+  setThreadsResult: (result: ThreadsResult | null) => void;
+  resetThreads: () => void;
+  setScenes: (scenes: Scene[] | null) => void;
+  updateScene: (id: string, patch: Partial<Scene>) => void;
+  resetScript: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -64,6 +71,8 @@ export const useAppStore = create<AppState>()(
       hasHydrated: false,
       product: null,
       blogResult: null,
+      threadsResult: null,
+      scenes: null,
 
       setApiKey: (provider, value) =>
         set((s) => ({
@@ -95,6 +104,16 @@ export const useAppStore = create<AppState>()(
       setBlogResult: (blogResult) => set({ blogResult }),
       resetBlog: () => set({ product: null, blogResult: null }),
 
+      setThreadsResult: (threadsResult) => set({ threadsResult }),
+      resetThreads: () => set({ threadsResult: null }),
+
+      setScenes: (scenes) => set({ scenes }),
+      updateScene: (id, patch) =>
+        set((s) => ({
+          scenes: s.scenes?.map((sc) => (sc.id === id ? { ...sc, ...patch } : sc)) ?? null,
+        })),
+      resetScript: () => set({ scenes: null }),
+
       addSessionCost: (won) =>
         set((s) => ({
           cost: {
@@ -115,6 +134,8 @@ export const useAppStore = create<AppState>()(
         settings: s.settings,
         product: s.product,
         blogResult: s.blogResult,
+        threadsResult: s.threadsResult,
+        scenes: s.scenes,
       }),
       skipHydration: true,
     },

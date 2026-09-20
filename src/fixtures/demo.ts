@@ -1,6 +1,6 @@
 // 데모 모드용 샘플 데이터. API 키 없이 전체 파이프라인을 검증하는 용도다(PROMPT.md 11절).
 
-import type { Product } from "@/lib/types";
+import type { Product, Scene } from "@/lib/types";
 
 export const DEMO_PRODUCT: Product = {
   name: "포근한 극세사 극세사 이불 세트",
@@ -39,3 +39,58 @@ export const DEMO_BLOG_RAW = `
 ===TAGS===
 #극세사이불 #이불추천 #환절기침구 #극세사이불세트 #아이방침구
 `.trim();
+
+export const DEMO_THREADS_RAW = `
+===MAIN===
+환절기에 이불 뭐 쓰세요? 저는 극세사 이불로 바꿨어요 🧺
+
+이틀 만에 도착해서
+바로 세탁 한 번 돌리고 덮었는데
+결이 안 뭉치고 그대로예요
+
+아이도 촉감 좋다고 계속 만지작거리네요
+===REPLY===
+지퍼가 살짝 뻑뻑한 거 빼고는 만족도 높아요.
+환절기 이불 고민이면 한 번쯤 볼만해요.
+===REPLY===
+자세한 후기는 프로필/댓글의 링크에서 확인해보세요!
+`.trim();
+
+export const DEMO_SCENES: Scene[] = [
+  {
+    id: "s1",
+    kind: "hook",
+    headline: "[[환절기]] 이불 고민 끝",
+    narration: "이불이 너무 얇아서 매년 환절기마다 뒤척였는데, 이번엔 다르게 골라봤어요.",
+  },
+  {
+    id: "s2",
+    kind: "scene",
+    headline: "이 제품을 고른 이유",
+    narration: "극세사 원단에 세탁기 세탁까지 가능하다길래 검색 끝에 골랐어요.",
+  },
+  {
+    id: "s3",
+    kind: "scene",
+    headline: "이불 세트 구성",
+    narration: "이불 하나에 커버까지 세트로 와서 바로 덮을 수 있었어요.",
+  },
+  {
+    id: "s4",
+    kind: "scene",
+    headline: "[[촉감]] 완전 부드러움",
+    narration: "개봉하자마자 부드러운 촉감이 느껴졌고, 아이도 좋아했어요.",
+  },
+  {
+    id: "s5",
+    kind: "scene",
+    headline: "솔직히 아쉬운 점",
+    narration: "다만 커버 지퍼가 조금 뻑뻑한 편이라 여닫을 때 힘이 좀 필요해요.",
+  },
+  {
+    id: "s6",
+    kind: "cta",
+    headline: "자세한 후기는 [[링크]]에서",
+    narration: "더 자세한 내용은 프로필이나 댓글의 링크에서 확인해보세요.",
+  },
+];

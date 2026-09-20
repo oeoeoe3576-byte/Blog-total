@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Copy, Loader2, RefreshCw, X } from "lucide-react";
 import { useAppStore } from "@/lib/store";
+import { ProviderBadge } from "@/components/ProviderBadge";
 import { useTextGeneration, type TextGenErrorInfo } from "@/hooks/useTextGeneration";
+import { usePaidConfirm } from "@/hooks/usePaidConfirm";
 import { buildBlogSystemPrompt, buildBlogUserPrompt } from "@/lib/prompts/blog";
 import { parseBlogOutput } from "@/lib/parse";
 import { copyRichText, markdownToSimpleHtml } from "@/lib/clipboard";
@@ -37,6 +39,7 @@ export function Step1Blog() {
   const addSessionCost = useAppStore((s) => s.addSessionCost);
 
   const { text: streamedText, isStreaming, generate, cancel } = useTextGeneration();
+  const paidConfirm = usePaidConfirm();
 
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
@@ -44,7 +47,6 @@ export function Step1Blog() {
   const [mainKeyword, setMainKeyword] = useState("");
   const [experience, setExperience] = useState<Experience | null>(null);
   const [experienceNotes, setExperienceNotes] = useState("");
-  const [costModalOpen, setCostModalOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [lastError, setLastError] = useState<TextGenErrorInfo | null>(null);
 
@@ -100,37 +102,11 @@ export function Step1Blog() {
       return;
     }
 
-    if (!settings.apiKeys.openai) {
+    const proceed = await paidConfirm.requestConfirm();
+    if (!proceed) {
       setLastError(freeResult.error);
       return;
     }
-
-    if (settings.autoAllowPaidThisSession) {
-      const paidResult = await generate({
-        task: "blog",
-        system,
-        user,
-        providerOrder: ["openai"],
-        apiKeys: settings.apiKeys,
-      });
-      if (paidResult.ok) {
-        addSessionCost(ROUGH_COST_WON.textGeneration);
-        applyResult(paidResult.text, paidResult.provider, product);
-      } else {
-        setLastError(paidResult.error);
-      }
-      return;
-    }
-
-    setLastError(freeResult.error);
-    setCostModalOpen(true);
-  };
-
-  const confirmPaidRetry = async () => {
-    setCostModalOpen(false);
-    const product = buildProduct();
-    const system = buildBlogSystemPrompt(product);
-    const user = buildBlogUserPrompt(product);
 
     const paidResult = await generate({
       task: "blog",
@@ -141,29 +117,12 @@ export function Step1Blog() {
     });
 
     if (paidResult.ok) {
-      setLastError(null);
       addSessionCost(ROUGH_COST_WON.textGeneration);
       applyResult(paidResult.text, paidResult.provider, product);
     } else {
       setLastError(paidResult.error);
     }
   };
-
-  const providerBadge = useMemo(() => {
-    if (!blogResult?.provider) return null;
-    const paid = blogResult.provider === "openai";
-    const label =
-      blogResult.provider === "gemini" ? "Gemini" : blogResult.provider === "openai" ? "OpenAI" : "데모";
-    return (
-      <span
-        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-          paid ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-700"
-        }`}
-      >
-        {label} · {paid ? "유료" : "무료"}
-      </span>
-    );
-  }, [blogResult?.provider]);
 
   const handleCopy = async () => {
     if (!blogResult) return;
@@ -319,7 +278,7 @@ export function Step1Blog() {
         <div className="flex flex-col gap-3 rounded-xl border border-gray-200 p-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-gray-700">결과</span>
-            {providerBadge}
+            <ProviderBadge provider={blogResult.provider} />
           </div>
 
           {blogResult.titles.length > 0 && (
@@ -375,10 +334,10 @@ export function Step1Blog() {
       )}
 
       <CostConfirmModal
-        open={costModalOpen}
+        open={paidConfirm.modalOpen}
         estimatedWon={ROUGH_COST_WON.textGeneration}
-        onCancel={() => setCostModalOpen(false)}
-        onConfirm={confirmPaidRetry}
+        onCancel={paidConfirm.cancel}
+        onConfirm={paidConfirm.confirm}
       />
     </div>
   );

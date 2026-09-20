@@ -23,6 +23,7 @@ export interface BlogResult {
 export interface ThreadsResult {
   main: string;
   replies: string[];
+  provider?: string;
 }
 
 export type SceneKind = "hook" | "scene" | "cta";
