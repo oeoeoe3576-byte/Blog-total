@@ -10,37 +10,50 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { ApiKeys } from "./providers/types";
+import type { BlogResult, Product } from "./types";
 
 export interface CostState {
   /** 이번 세션 동안 발생한 예상 누적 비용(원) */
   sessionEstimatedCostWon: number;
 }
 
+export const DEFAULT_DISCLOSURE_TEXT =
+  "이 포스팅은 쇼핑커넥트 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.";
+
 export interface Settings {
   apiKeys: ApiKeys;
   demoMode: boolean;
   /** 켜져 있으면 이번 세션 동안 유료 프로바이더 확인 모달을 띄우지 않는다 */
   autoAllowPaidThisSession: boolean;
+  /** 블로그 글 첫머리/끝에 자동으로 삽입되는 대가성 표기 문구 */
+  disclosureText: string;
 }
 
 const defaultSettings: Settings = {
   apiKeys: {},
   demoMode: false,
   autoAllowPaidThisSession: false,
+  disclosureText: DEFAULT_DISCLOSURE_TEXT,
 };
 
 interface AppState {
   settings: Settings;
   cost: CostState;
   hasHydrated: boolean;
+  product: Product | null;
+  blogResult: BlogResult | null;
 
   setApiKey: (provider: keyof ApiKeys, value: string) => void;
   clearApiKey: (provider: keyof ApiKeys) => void;
   setDemoMode: (value: boolean) => void;
   setAutoAllowPaidThisSession: (value: boolean) => void;
+  setDisclosureText: (value: string) => void;
   addSessionCost: (won: number) => void;
   resetSessionCost: () => void;
   setHasHydrated: (value: boolean) => void;
+  setProduct: (product: Product) => void;
+  setBlogResult: (result: BlogResult | null) => void;
+  resetBlog: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -49,6 +62,8 @@ export const useAppStore = create<AppState>()(
       settings: defaultSettings,
       cost: { sessionEstimatedCostWon: 0 },
       hasHydrated: false,
+      product: null,
+      blogResult: null,
 
       setApiKey: (provider, value) =>
         set((s) => ({
@@ -73,6 +88,13 @@ export const useAppStore = create<AppState>()(
           settings: { ...s.settings, autoAllowPaidThisSession: value },
         })),
 
+      setDisclosureText: (value) =>
+        set((s) => ({ settings: { ...s.settings, disclosureText: value } })),
+
+      setProduct: (product) => set({ product }),
+      setBlogResult: (blogResult) => set({ blogResult }),
+      resetBlog: () => set({ product: null, blogResult: null }),
+
       addSessionCost: (won) =>
         set((s) => ({
           cost: {
@@ -87,8 +109,13 @@ export const useAppStore = create<AppState>()(
     {
       name: "blog-agent-settings",
       storage: createJSONStorage(() => localStorage),
-      // 텍스트 상태만 저장한다. cost/hasHydrated는 세션성 값이라 제외한다.
-      partialize: (s) => ({ settings: s.settings }),
+      // 텍스트 상태(설정 + 단계별 결과)만 저장한다. cost/hasHydrated는
+      // 세션성 값이라 제외하고, 이미지/오디오/영상 Blob은 IndexedDB(storage.ts)로 뺀다.
+      partialize: (s) => ({
+        settings: s.settings,
+        product: s.product,
+        blogResult: s.blogResult,
+      }),
       skipHydration: true,
     },
   ),

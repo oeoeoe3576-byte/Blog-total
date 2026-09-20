@@ -6,6 +6,7 @@ import { Stepper } from "@/components/Stepper";
 import { StepCard, type StepStatus } from "@/components/StepCard";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { StoreHydrator } from "@/components/StoreHydrator";
+import { Step1Blog } from "@/components/steps/Step1Blog";
 import { useAppStore } from "@/lib/store";
 
 const STEP_DEFS: { title: string; description: string }[] = [
@@ -21,6 +22,8 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const hasHydrated = useAppStore((s) => s.hasHydrated);
   const demoMode = useAppStore((s) => s.settings.demoMode);
+  const blogResult = useAppStore((s) => s.blogResult);
+  const resetBlog = useAppStore((s) => s.resetBlog);
 
   return (
     <>
@@ -48,20 +51,35 @@ export default function Home() {
           </button>
         </div>
         <div className="mx-auto max-w-3xl px-4 pb-2">
-          <Stepper currentStep={1} />
+          <Stepper currentStep={blogResult ? 2 : 1} />
         </div>
       </header>
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-6">
         {STEP_DEFS.map((def, i) => {
-          const status: StepStatus = "대기";
+          if (i === 0) {
+            const status: StepStatus = blogResult ? "완료" : "대기";
+            return (
+              <StepCard
+                key={def.title}
+                number={1}
+                title={def.title}
+                description={def.description}
+                status={status}
+                onRestart={blogResult ? resetBlog : undefined}
+              >
+                <Step1Blog />
+              </StepCard>
+            );
+          }
+
           return (
             <StepCard
               key={def.title}
               number={i + 1}
               title={def.title}
               description={def.description}
-              status={status}
+              status="대기"
             >
               <p className="text-sm text-gray-400">
                 이 단계는 다음 Phase에서 구현돼요.

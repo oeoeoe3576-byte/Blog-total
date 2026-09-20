@@ -32,6 +32,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   const setAutoAllowPaidThisSession = useAppStore(
     (s) => s.setAutoAllowPaidThisSession,
   );
+  const setDisclosureText = useAppStore((s) => s.setDisclosureText);
 
   const [drafts, setDrafts] = useState<Record<string, string>>({});
 
@@ -128,6 +129,22 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
               className="h-4 w-4"
             />
           </label>
+        </section>
+
+        <section className="mt-5 space-y-1.5 border-t border-gray-100 pt-4">
+          <label htmlFor="disclosure-text" className="text-sm font-semibold text-gray-700">
+            대가성 표기 문구
+          </label>
+          <p className="text-xs text-gray-400">
+            블로그 글 첫머리와 끝에 자동으로 삽입돼요. 필요에 맞게 수정할 수 있어요.
+          </p>
+          <textarea
+            id="disclosure-text"
+            rows={2}
+            value={settings.disclosureText}
+            onChange={(e) => setDisclosureText(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
+          />
         </section>
       </div>
     </div>

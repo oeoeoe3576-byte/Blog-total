@@ -3,11 +3,11 @@
 // Phase 0에서는 실행기 골격만 만든다. 실제 텍스트/이미지/TTS 어댑터는
 // Phase 1~4에서 이 인터페이스를 구현해 chainAdapters 배열로 전달한다.
 
-import type { ApiKeys, ProviderAdapter, ProviderError } from "./types";
+import type { ApiKeys, ProviderAdapter, ProviderError, ProviderMeta } from "./types";
 
 export interface ChainResult<Output> {
   output: Output;
-  provider: ProviderAdapter<unknown, Output>["meta"];
+  provider: ProviderMeta;
 }
 
 export interface RunChainOptions {
@@ -15,7 +15,7 @@ export interface RunChainOptions {
    * 다음 시도할 프로바이더가 유료일 때 호출된다.
    * false를 반환하면 체인을 중단하고 마지막 오류를 던진다.
    */
-  confirmPaid?: (meta: ProviderAdapter<unknown, unknown>["meta"]) => Promise<boolean>;
+  confirmPaid?: (meta: ProviderMeta) => Promise<boolean>;
 }
 
 /**
@@ -37,9 +37,7 @@ export async function runChain<Input, Output>(
     if (!adapter.isAvailable(keys)) continue;
 
     if (adapter.meta.paid && options.confirmPaid) {
-      const ok = await options.confirmPaid(
-        adapter.meta as ProviderAdapter<unknown, unknown>["meta"],
-      );
+      const ok = await options.confirmPaid(adapter.meta);
       if (!ok) {
         throw lastError ?? new Error("유료 프로바이더 진행이 취소되었습니다.");
       }
