@@ -54,12 +54,39 @@
     그라데이션 폴백(실제 e2e 테스트에서 감지된 "ImageBitmap detached" 예외를 잡아 처리)
   - `lib/video/recorder.ts`: Canvas.captureStream + WebAudio + MediaRecorder 합성,
     AudioContext.currentTime을 마스터 클록으로 사용해 싱크 유지, 취소(AbortSignal) 지원
+    - **실제로 겪은 중요한 버그(Phase 6 검증 중 발견 후 여기서 함께 수정)**: 더빙이
+      꺼져 있어 실제로 재생을 예약한 오디오 소스가 하나도 없을 때, 아무 소리도 나지
+      않는 빈 `MediaStreamAudioDestinationNode` 트랙을 캔버스 스트림에 그대로 얹으면
+      `MediaRecorder`가 녹화 시간 내내(수십 초) 단 한 번도 영상 데이터를 flush하지
+      않고 최종적으로 0바이트 blob을 만드는 문제를 실제로 재현했다. 재생 시간·진행률·
+      `<video>` 엘리먼트까지는 정상으로 보여서 겉으로는 성공한 것처럼 보였다.
+      실제 오디오가 흐를 때(더빙 ON)는 문제가 없었다. 수정: 실제로 `start()`한 오디오
+      소스가 하나라도 있을 때만 오디오 트랙을 붙이도록 바꿨다. 또한 캔버스를
+      뷰포트 밖 멀리(`left: -99999px`)에 두면 일부 환경에서 페인트가 생략돼 프레임이
+      아예 캡처되지 않는 문제도 있어, 뷰포트 안쪽에 두고 투명도로만 감추는 방식으로
+      바꿨다. 마지막 안전장치로 녹화 결과가 0바이트면 조용히 성공 처리하지 않고
+      명확한 오류를 던지도록 했다.
   - Step5Video UI: 실시간 미리보기, 클립 스타일/자막 스타일/더빙/해상도 설정,
     Web Speech 미리듣기, 탭 이탈 경고, 50초 초과 경고, 녹화 진행률/취소/다운로드
   - 데모 모드 더빙: 실제 TTS 없이 허밍 톤(WAV)을 생성해 오디오 길이 기반 싱크 로직을 검증
   - Playwright로 실제 브라우저에서 확인: 데모 모드로 더빙 ON 상태의 약 40초 영상을
     실제 녹화 시간(약 40.7초)만큼 걸려 완성 → 재생·다운로드 가능함을 확인. 렌더러 수정 전에는
     드물게 `ImageBitmap` detach로 인한 콘솔 예외가 있었는데, try/catch 폴백 추가 후 재현되지 않음을 확인
+
+- **Phase 6 — 발행 패키지 + MP4 변환**: 완료
+  - `lib/zip.ts`: jszip으로 `blog.txt`/`blog.html`/`threads.txt`/`script.txt`/`images/*`/
+    `video.mp4|webm`/`credits.txt`를 묶어 ZIP 생성
+  - `lib/video/ffmpeg.ts`: `@ffmpeg/ffmpeg` 싱글스레드 코어를 버튼 클릭 시에만 CDN에서
+    지연 로드해 WebM→MP4 변환(진행률 콜백 포함)
+  - `lib/scriptFormat.ts`: 대본 복사 포맷터를 Step3/Step6이 공유하도록 분리
+  - Step6Package UI: 블로그/스레드/대본/이미지/영상 한 화면에 모아 개별 복사,
+    전체 ZIP 다운로드, 네이버 자동 발행 API 부재 안내
+  - **Phase 5에서 넘어온 것처럼 보였지만 Phase 6 검증(ZIP 안 영상 파일 실제 열어보기) 중에야
+    발견한 버그**: ZIP에 담긴 `video.webm`의 길이가 0바이트였다. 위 Phase 5 항목에 적은
+    "더빙 OFF일 때 빈 오디오 트랙을 섞으면 MediaRecorder가 아무 데이터도 flush하지 않는"
+    문제였다. 수정 후 실제로 ZIP을 내려받아 압축을 풀고, 그 안의 `video.webm`을 별도
+    브라우저 페이지에서 다시 열어 해상도(720×1280)와 재생 진행(`currentTime`이 실제로
+    흐름)까지 직접 확인했다.
 
 ## 로컬 실행
 
@@ -107,3 +134,9 @@ npm run test
   `<video>` 엘리먼트가 한동안 `Infinity`를 보고하는 경우가 있습니다(널리 알려진 Chrome/WebM
   자체의 한계이며 재생 자체는 끝까지 정상 동작합니다). 정확한 길이 표시가 꼭 필요하면
   Phase 6의 MP4 변환을 거치거나 별도의 duration-fix 라이브러리 적용을 검토하세요.
+- `@ffmpeg/ffmpeg`(WebM→MP4 변환)는 코어 파일을 unpkg CDN(`@ffmpeg/core@0.12.10`)에서
+  지연 로드합니다. 이 샌드박스는 unpkg/jsdelivr 등 CDN 접근이 막혀 있어 실제 변환 동작을
+  끝까지 확인하지 못했습니다. 라이브러리 자체 API(`FFmpeg`, `toBlobURL`, `writeFile`,
+  `exec`, `readFile`)는 설치된 패키지의 타입 선언으로 확인했으니 배포 환경에서 실제
+  변환 버튼을 한 번 눌러 정상 동작하는지 확인해 주세요. 실패해도 WebM 그대로 다운로드할
+  수 있게 만들어 뒀습니다.

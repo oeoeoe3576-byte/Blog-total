@@ -11,6 +11,7 @@ import { Step2Threads } from "@/components/steps/Step2Threads";
 import { Step3Script } from "@/components/steps/Step3Script";
 import { Step4Images } from "@/components/steps/Step4Images";
 import { Step5Video } from "@/components/steps/Step5Video";
+import { Step6Package } from "@/components/steps/Step6Package";
 import { useAppStore } from "@/lib/store";
 
 export default function Home() {
@@ -89,7 +90,7 @@ export default function Home() {
       title: "발행 패키지",
       description: "완성된 결과물을 ZIP으로 모아 다운로드해요.",
       status: "대기",
-      content: <p className="text-sm text-gray-400">이 단계는 다음 Phase에서 구현돼요.</p>,
+      content: <Step6Package />,
     },
   ];
 

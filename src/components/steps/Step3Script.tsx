@@ -12,21 +12,15 @@ import { ROUGH_COST_WON } from "@/lib/cost";
 import { CostConfirmModal } from "@/components/CostConfirmModal";
 import { ProviderBadge } from "@/components/ProviderBadge";
 import { DEMO_SCENES } from "@/fixtures/demo";
+import { formatSceneCopy } from "@/lib/scriptFormat";
 import type { Scene, SceneKind } from "@/lib/types";
 
-const KIND_LABEL: Record<SceneKind, string> = { hook: "훅", scene: "장면", cta: "CTA" };
 const SYLLABLES_PER_SECOND = 5.5;
 
 type Tab = "plan" | "paste" | "copy";
 
 function toScenes(scenes: { kind: SceneKind; headline: string; narration: string }[]): Scene[] {
   return scenes.map((s, i) => ({ id: `scene-${Date.now()}-${i}`, ...s }));
-}
-
-function formatSceneCopy(scenes: Scene[]): string {
-  return scenes
-    .map((s) => `[${KIND_LABEL[s.kind]}] (자막: ${s.headline}) ${s.narration}`)
-    .join("\n\n");
 }
 
 export function Step3Script() {
