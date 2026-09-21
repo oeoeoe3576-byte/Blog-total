@@ -97,7 +97,7 @@ export function Step3Script() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-1 rounded-lg bg-gray-100 p-1 text-sm">
+      <div className="flex gap-1 rounded-xl bg-gray-100 p-1 text-sm">
         {(
           [
             ["plan", "클립 대본 기획"],
@@ -131,7 +131,7 @@ export function Step3Script() {
               type="button"
               disabled={!canGenerate || busy}
               onClick={runGeneration}
-              className="flex items-center gap-1.5 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-30"
+              className="flex items-center gap-1.5 rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-30"
             >
               {busy && <Loader2 size={14} className="animate-spin" />}
               {busy ? "기획 중..." : "대본 기획하기"}
@@ -141,7 +141,7 @@ export function Step3Script() {
                 type="button"
                 disabled={busy}
                 onClick={runGeneration}
-                className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+                className="flex items-center gap-1 rounded-xl border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
               >
                 <RefreshCw size={14} /> 다시 기획
               </button>
@@ -158,13 +158,13 @@ export function Step3Script() {
             disabled={busy}
             rows={6}
             placeholder="대본 기획의 참고 자료로 쓸 글을 붙여넣으세요."
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
+            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-rose-400"
           />
           <button
             type="button"
             disabled={!canGenerate || busy}
             onClick={runGeneration}
-            className="flex w-fit items-center gap-1.5 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-30"
+            className="flex w-fit items-center gap-1.5 rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-30"
           >
             {busy && <Loader2 size={14} className="animate-spin" />}
             {busy ? "기획 중..." : "대본 기획하기"}
@@ -175,13 +175,13 @@ export function Step3Script() {
       {tab === "copy" &&
         (scenes ? (
           <div className="flex flex-col gap-2">
-            <pre className="whitespace-pre-wrap rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
+            <pre className="whitespace-pre-wrap rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
               {formatSceneCopy(scenes)}
             </pre>
             <button
               type="button"
               onClick={handleCopyAll}
-              className="flex w-fit items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white"
+              className="flex w-fit items-center gap-1.5 rounded-xl bg-rose-500 px-3 py-1.5 text-sm font-medium text-white"
             >
               <Copy size={14} /> 복사
             </button>
@@ -202,7 +202,7 @@ export function Step3Script() {
           <button
             type="button"
             onClick={runGeneration}
-            className="mt-2 rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
+            className="mt-2 rounded-xl border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
           >
             다시 시도
           </button>
@@ -226,7 +226,7 @@ export function Step3Script() {
 
           <div className="flex flex-col gap-2">
             {scenes.map((scene) => (
-              <div key={scene.id} className="rounded-lg border border-gray-200 p-3">
+              <div key={scene.id} className="rounded-xl border border-gray-200 p-3">
                 <div className="mb-2 flex items-center justify-between">
                   <select
                     value={scene.kind}
@@ -250,14 +250,14 @@ export function Step3Script() {
                   value={scene.headline}
                   onChange={(e) => updateScene(scene.id, { headline: e.target.value })}
                   placeholder="자막 (예: [[핵심어]] 강조)"
-                  className="mb-2 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm outline-none focus:border-gray-900"
+                  className="mb-2 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm outline-none focus:border-rose-400"
                 />
                 <textarea
                   value={scene.narration}
                   onChange={(e) => updateScene(scene.id, { narration: e.target.value })}
                   rows={2}
                   placeholder="내레이션"
-                  className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm outline-none focus:border-gray-900"
+                  className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm outline-none focus:border-rose-400"
                 />
               </div>
             ))}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { ChevronLeft, ChevronRight, Settings } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Sparkles } from "lucide-react";
 import { Stepper } from "@/components/Stepper";
 import { StepCard, type StepStatus } from "@/components/StepCard";
 import { SettingsDialog } from "@/components/SettingsDialog";
@@ -101,28 +101,33 @@ export default function Home() {
     <>
       <StoreHydrator />
 
-      <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-10 rounded-b-3xl border-b border-orange-100 bg-white/85 shadow-sm backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-          <div>
-            <h1 className="text-lg font-bold text-gray-900">
-              블로그 올인원 AI 에이전트
-            </h1>
-            {hasHydrated && demoMode && (
-              <p className="text-xs font-medium text-orange-500">
-                데모 모드 — API를 호출하지 않고 샘플 데이터로 동작해요
-              </p>
-            )}
+          <div className="flex items-center gap-2">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-300 to-rose-400 text-white shadow-sm">
+              <Sparkles size={18} />
+            </span>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">
+                블로그 올인원 AI 에이전트
+              </h1>
+              {hasHydrated && demoMode && (
+                <p className="text-xs font-medium text-orange-500">
+                  데모 모드 — API를 호출하지 않고 샘플 데이터로 동작해요
+                </p>
+              )}
+            </div>
           </div>
           <button
             type="button"
             onClick={() => setSettingsOpen(true)}
             aria-label="설정 열기"
-            className="rounded-full p-2 text-gray-500 hover:bg-gray-100"
+            className="rounded-full p-2 text-gray-500 hover:bg-orange-50 hover:text-rose-500"
           >
             <Settings size={20} />
           </button>
         </div>
-        <div className="mx-auto max-w-3xl px-4 pb-2">
+        <div className="mx-auto max-w-3xl px-4 pb-3">
           <Stepper
             progressStep={currentStep}
             activeStep={openStep}
@@ -151,7 +156,7 @@ export default function Home() {
             type="button"
             disabled={openStep <= 1}
             onClick={() => setManualOpenStep(openStep - 1)}
-            className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-30"
+            className="flex items-center gap-1 rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 hover:bg-orange-50 disabled:opacity-30"
           >
             <ChevronLeft size={16} /> 이전 단계
           </button>
@@ -159,7 +164,7 @@ export default function Home() {
             type="button"
             disabled={openStep >= steps.length}
             onClick={() => setManualOpenStep(openStep + 1)}
-            className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-30"
+            className="flex items-center gap-1 rounded-full bg-gradient-to-br from-orange-400 to-rose-400 px-4 py-2 text-sm font-medium text-white shadow-sm hover:brightness-105 disabled:opacity-30"
           >
             다음 단계 <ChevronRight size={16} />
           </button>

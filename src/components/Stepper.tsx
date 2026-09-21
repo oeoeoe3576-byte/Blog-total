@@ -1,5 +1,7 @@
 "use client";
 
+import { Check } from "lucide-react";
+
 const STEPS = [
   "네이버 블로그",
   "스레드",
@@ -29,22 +31,24 @@ export function Stepper({ progressStep, activeStep, onStepClick }: StepperProps)
               type="button"
               onClick={() => onStepClick?.(step)}
               className={[
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-colors",
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-sm transition-all",
                 status === "done" && "bg-[#03C75A] text-white",
-                status === "active" && "bg-orange-500 text-white",
-                status === "todo" && "bg-gray-200 text-gray-500",
+                status === "active" && "scale-110 bg-gradient-to-br from-orange-400 to-rose-400 text-white ring-4 ring-orange-100",
+                status === "todo" && "bg-orange-50 text-orange-300",
               ]
                 .filter(Boolean)
                 .join(" ")}
               aria-current={status === "active" ? "step" : undefined}
             >
-              {step}
+              {status === "done" ? <Check size={16} strokeWidth={3} /> : step}
             </button>
-            <span className="text-center text-[11px] leading-tight text-gray-600">
+            <span
+              className={`text-center text-[11px] leading-tight ${status === "active" ? "font-semibold text-rose-500" : "text-gray-500"}`}
+            >
               {label}
             </span>
             {step < STEPS.length && (
-              <span className="hidden h-px w-full border-t border-dashed border-gray-300 sm:block" />
+              <span className="hidden h-px w-full border-t border-dashed border-orange-200 sm:block" />
             )}
           </li>
         );

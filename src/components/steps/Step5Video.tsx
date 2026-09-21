@@ -221,14 +221,14 @@ export function Step5Video({ active }: { active: boolean }) {
           ref={previewCanvasRef}
           width={previewW}
           height={previewH}
-          className="w-[220px] rounded-xl border border-gray-300 bg-gray-900"
+          className="w-[220px] rounded-xl border border-gray-300 bg-rose-500"
           style={{ aspectRatio: `${previewW} / ${previewH}` }}
         />
         <button
           type="button"
           onClick={handleRecord}
           disabled={isRecording}
-          className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-40"
+          className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-rose-500 px-3 py-2 text-sm font-semibold text-white disabled:opacity-40"
         >
           {isRecording ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
           {isRecording ? "만드는 중..." : "🎬 클립 영상 만들기"}
@@ -238,14 +238,14 @@ export function Step5Video({ active }: { active: boolean }) {
           <div className="w-full">
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
               <div
-                className="h-full bg-gray-900 transition-all"
+                className="h-full bg-rose-500 transition-all"
                 style={{ width: `${Math.round(progress * 100)}%` }}
               />
             </div>
             <button
               type="button"
               onClick={handleCancelRecord}
-              className="mt-1 flex w-full items-center justify-center gap-1 rounded-lg border border-gray-300 py-1 text-xs text-gray-600"
+              className="mt-1 flex w-full items-center justify-center gap-1 rounded-xl border border-gray-300 py-1 text-xs text-gray-600"
             >
               <Square size={12} /> 취소
             </button>
@@ -264,11 +264,11 @@ export function Step5Video({ active }: { active: boolean }) {
 
         {existingVideoUrl && !isRecording && (
           <div className="w-full">
-            <video src={existingVideoUrl} controls className="w-full rounded-lg" />
+            <video src={existingVideoUrl} controls className="w-full rounded-xl" />
             <a
               href={existingVideoUrl}
               download="clip-video.webm"
-              className="mt-1 flex w-full items-center justify-center gap-1 rounded-lg border border-gray-300 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              className="mt-1 flex w-full items-center justify-center gap-1 rounded-xl border border-gray-300 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
             >
               <Download size={12} /> 다운로드
             </a>
@@ -282,7 +282,7 @@ export function Step5Video({ active }: { active: boolean }) {
           <input
             value={videoSettings.title}
             onChange={(e) => setVideoSettings({ title: e.target.value })}
-            className="rounded-lg border border-gray-300 px-2 py-1.5 outline-none focus:border-gray-900"
+            className="rounded-xl border border-gray-300 px-2 py-1.5 outline-none focus:border-rose-400"
           />
         </label>
 
@@ -291,7 +291,7 @@ export function Step5Video({ active }: { active: boolean }) {
           <select
             value={videoSettings.style}
             onChange={(e) => setVideoSettings({ style: e.target.value as ClipStyle })}
-            className="rounded-lg border border-gray-300 px-2 py-1.5"
+            className="rounded-xl border border-gray-300 px-2 py-1.5"
           >
             <option value="auto">자동</option>
             <option value="emotional">감성</option>
@@ -299,7 +299,7 @@ export function Step5Video({ active }: { active: boolean }) {
           </select>
         </label>
 
-        <div className="grid grid-cols-2 gap-3 rounded-lg border border-gray-200 p-2">
+        <div className="grid grid-cols-2 gap-3 rounded-xl border border-gray-200 p-2">
           <TextStyleFields
             label="가운데 큰 자막"
             value={videoSettings.headline}
@@ -319,7 +319,7 @@ export function Step5Video({ active }: { active: boolean }) {
           </button>
         </div>
 
-        <div className="flex flex-col gap-2 rounded-lg border border-gray-200 p-2">
+        <div className="flex flex-col gap-2 rounded-xl border border-gray-200 p-2">
           <label className="flex items-center justify-between text-xs font-medium text-gray-600">
             AI 더빙 넣기
             <input
@@ -336,7 +336,7 @@ export function Step5Video({ active }: { active: boolean }) {
                 <select
                   value={videoSettings.voice}
                   onChange={(e) => setVideoSettings({ voice: e.target.value })}
-                  className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-xs"
+                  className="flex-1 rounded-xl border border-gray-300 px-2 py-1 text-xs"
                 >
                   {VOICES_BY_PROVIDER.edge.map((v) => (
                     <option key={v.id} value={v.id}>
@@ -351,7 +351,7 @@ export function Step5Video({ active }: { active: boolean }) {
                   max={1.5}
                   value={videoSettings.rate}
                   onChange={(e) => setVideoSettings({ rate: clampRate(Number(e.target.value)) })}
-                  className="w-16 rounded-lg border border-gray-300 px-2 py-1 text-xs"
+                  className="w-16 rounded-xl border border-gray-300 px-2 py-1 text-xs"
                 />
               </div>
               <p className="text-[11px] text-gray-400">
@@ -362,7 +362,7 @@ export function Step5Video({ active }: { active: boolean }) {
                   type="button"
                   onClick={generateDubbing}
                   disabled={dubbingLoading}
-                  className="flex items-center gap-1 rounded-lg bg-gray-900 px-2 py-1 text-xs font-medium text-white disabled:opacity-40"
+                  className="flex items-center gap-1 rounded-xl bg-rose-500 px-2 py-1 text-xs font-medium text-white disabled:opacity-40"
                 >
                   {dubbingLoading && <Loader2 size={12} className="animate-spin" />}
                   더빙 생성
@@ -370,7 +370,7 @@ export function Step5Video({ active }: { active: boolean }) {
                 <button
                   type="button"
                   onClick={previewNarration}
-                  className="flex items-center gap-1 rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-600"
+                  className="flex items-center gap-1 rounded-xl border border-gray-300 px-2 py-1 text-xs text-gray-600"
                 >
                   <Volume2 size={12} /> 미리듣기(영상엔 미포함)
                 </button>
@@ -389,7 +389,7 @@ export function Step5Video({ active }: { active: boolean }) {
           <select
             value={videoSettings.resolution}
             onChange={(e) => setVideoSettings({ resolution: e.target.value as Resolution })}
-            className="rounded-lg border border-gray-300 px-2 py-1.5"
+            className="rounded-xl border border-gray-300 px-2 py-1.5"
           >
             <option value="720p">720p (빠름)</option>
             <option value="1080p">1080p</option>

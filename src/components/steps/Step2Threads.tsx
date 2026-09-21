@@ -128,7 +128,7 @@ export function Step2Threads() {
           type="button"
           disabled={!canGenerate || busy}
           onClick={runGeneration}
-          className="flex items-center gap-1.5 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-30"
+          className="flex items-center gap-1.5 rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-30"
         >
           {busy && <Loader2 size={14} className="animate-spin" />}
           {busy ? "생성 중..." : "스레드 게시글 생성"}
@@ -138,7 +138,7 @@ export function Step2Threads() {
             type="button"
             disabled={busy}
             onClick={runGeneration}
-            className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            className="flex items-center gap-1 rounded-xl border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
           >
             <RefreshCw size={14} /> 다시 생성
           </button>
@@ -157,7 +157,7 @@ export function Step2Threads() {
           <button
             type="button"
             onClick={runGeneration}
-            className="mt-2 rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
+            className="mt-2 rounded-xl border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
           >
             다시 시도
           </button>
@@ -185,7 +185,7 @@ export function Step2Threads() {
           <button
             type="button"
             onClick={handleCopyAll}
-            className="flex w-fit items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white"
+            className="flex w-fit items-center gap-1.5 rounded-xl bg-rose-500 px-3 py-1.5 text-sm font-medium text-white"
           >
             <Copy size={14} /> 전체 복사
           </button>
@@ -212,7 +212,7 @@ function ThreadPostCard({
   onCopy: (text: string) => void;
 }) {
   return (
-    <div className="rounded-lg border border-gray-200 p-3">
+    <div className="rounded-xl border border-gray-200 p-3">
       <div className="mb-1 flex items-center justify-between">
         <span className="text-xs font-medium text-gray-500">
           {label} ({text.length}/{THREADS_MAX_CHARS}자)

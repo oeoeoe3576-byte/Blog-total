@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 export type StepStatus = "대기" | "생성 중" | "완료";
 
 const STATUS_STYLE: Record<StepStatus, string> = {
-  대기: "bg-gray-100 text-gray-500",
+  대기: "bg-orange-50 text-orange-400",
   "생성 중": "bg-orange-100 text-orange-600",
   완료: "bg-green-100 text-green-700",
 };
@@ -28,10 +28,10 @@ export function StepCard({
   children,
 }: StepCardProps) {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <section className="rounded-3xl border border-orange-100 bg-white p-5 shadow-md shadow-orange-100/40">
       <header className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-900 text-sm font-bold text-white">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-rose-400 text-sm font-bold text-white shadow-sm">
             {number}
           </span>
           <div>
@@ -49,7 +49,7 @@ export function StepCard({
             <button
               type="button"
               onClick={onRestart}
-              className="rounded-full border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-500 hover:bg-gray-50"
+              className="rounded-full border border-orange-200 px-2.5 py-1 text-xs font-medium text-gray-500 hover:bg-orange-50"
             >
               새로 시작
             </button>

@@ -139,7 +139,7 @@ export function Step1Blog() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={busy}
-            className="rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-900"
+            className="rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-rose-400"
             placeholder="예: 극세사 이불 세트"
           />
         </label>
@@ -149,7 +149,7 @@ export function Step1Blog() {
             value={mainKeyword}
             onChange={(e) => setMainKeyword(e.target.value)}
             disabled={busy}
-            className="rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-900"
+            className="rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-rose-400"
             placeholder="예: 극세사 이불 추천"
           />
         </label>
@@ -159,7 +159,7 @@ export function Step1Blog() {
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             disabled={busy}
-            className="rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-900"
+            className="rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-rose-400"
             placeholder="예: 침구/이불"
           />
         </label>
@@ -169,7 +169,7 @@ export function Step1Blog() {
             value={features}
             onChange={(e) => setFeatures(e.target.value)}
             disabled={busy}
-            className="rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-900"
+            className="rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-rose-400"
             placeholder="예: 사계절용, 세탁기 세탁 가능"
           />
         </label>
@@ -184,9 +184,9 @@ export function Step1Blog() {
             type="button"
             disabled={busy}
             onClick={() => setExperience("experienced")}
-            className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium ${
+            className={`flex-1 rounded-xl border px-3 py-2 text-sm font-medium ${
               experience === "experienced"
-                ? "border-gray-900 bg-gray-900 text-white"
+                ? "border-gray-900 bg-rose-500 text-white"
                 : "border-gray-300 text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -196,9 +196,9 @@ export function Step1Blog() {
             type="button"
             disabled={busy}
             onClick={() => setExperience("researched")}
-            className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium ${
+            className={`flex-1 rounded-xl border px-3 py-2 text-sm font-medium ${
               experience === "researched"
-                ? "border-gray-900 bg-gray-900 text-white"
+                ? "border-gray-900 bg-rose-500 text-white"
                 : "border-gray-300 text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -215,7 +215,7 @@ export function Step1Blog() {
             placeholder={
               "메모하듯 편하게 적어주세요. 적지 않은 내용은 글에 등장하지 않아요.\n예) 언제·왜 샀는지 / 어떻게 썼는지 / 좋았던 순간 / 아쉬웠던 점"
             }
-            className="mt-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
+            className="mt-3 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-rose-400"
           />
         )}
         {!experience && (
@@ -228,7 +228,7 @@ export function Step1Blog() {
           type="button"
           disabled={!canGenerate || busy}
           onClick={runGeneration}
-          className="flex items-center gap-1.5 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-30"
+          className="flex items-center gap-1.5 rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-30"
         >
           {busy && <Loader2 size={14} className="animate-spin" />}
           {busy ? "생성 중..." : "블로그 글 생성"}
@@ -237,7 +237,7 @@ export function Step1Blog() {
           <button
             type="button"
             onClick={cancel}
-            className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            className="flex items-center gap-1 rounded-xl border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
           >
             <X size={14} /> 취소
           </button>
@@ -247,7 +247,7 @@ export function Step1Blog() {
             type="button"
             disabled={busy}
             onClick={runGeneration}
-            className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            className="flex items-center gap-1 rounded-xl border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
           >
             <RefreshCw size={14} /> 글 다시 생성
           </button>
@@ -267,7 +267,7 @@ export function Step1Blog() {
           <button
             type="button"
             onClick={runGeneration}
-            className="mt-2 rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
+            className="mt-2 rounded-xl border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
           >
             다시 시도
           </button>
@@ -304,7 +304,7 @@ export function Step1Blog() {
               value={blogResult.bodyMarkdown}
               onChange={(e) => setBlogResult({ ...blogResult, bodyMarkdown: e.target.value })}
               rows={14}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs leading-relaxed outline-none focus:border-gray-900"
+              className="w-full rounded-xl border border-gray-300 px-3 py-2 font-mono text-xs leading-relaxed outline-none focus:border-rose-400"
             />
           </label>
 
@@ -325,7 +325,7 @@ export function Step1Blog() {
             <button
               type="button"
               onClick={handleCopy}
-              className="flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white"
+              className="flex items-center gap-1.5 rounded-xl bg-rose-500 px-3 py-1.5 text-sm font-medium text-white"
             >
               <Copy size={14} /> 복사
             </button>

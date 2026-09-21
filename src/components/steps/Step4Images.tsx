@@ -270,18 +270,18 @@ export function Step4Images() {
             value={productUrl}
             onChange={(e) => setProductUrl(e.target.value)}
             placeholder="상품 링크 붙여넣기"
-            className="min-w-[200px] flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none focus:border-gray-900"
+            className="min-w-[200px] flex-1 rounded-xl border border-gray-300 px-3 py-1.5 text-sm outline-none focus:border-rose-400"
           />
           <button
             type="button"
             onClick={handleFetchProduct}
             disabled={productFetchLoading}
-            className="flex items-center gap-1 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
+            className="flex items-center gap-1 rounded-xl bg-rose-500 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
           >
             {productFetchLoading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
             가져오기
           </button>
-          <label className="flex cursor-pointer items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+          <label className="flex cursor-pointer items-center gap-1 rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
             <Upload size={14} /> 파일 업로드
             <input
               type="file"
@@ -303,7 +303,7 @@ export function Step4Images() {
                 key={url}
                 type="button"
                 onClick={() => handlePinFetchedUrl(url)}
-                className="overflow-hidden rounded-lg border border-gray-200 hover:border-gray-900"
+                className="overflow-hidden rounded-xl border border-gray-200 hover:border-gray-900"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={url} alt="" className="h-16 w-16 object-cover" />
@@ -325,7 +325,7 @@ export function Step4Images() {
         <select
           value={aspect}
           onChange={(e) => setAspect(e.target.value as Aspect)}
-          className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+          className="rounded-xl border border-gray-300 px-2 py-1.5 text-sm"
         >
           <option value="9:16">세로 9:16</option>
           <option value="16:9">가로 16:9</option>
@@ -334,7 +334,7 @@ export function Step4Images() {
         <select
           value={quality}
           onChange={(e) => setQuality(e.target.value as "low" | "medium" | "high")}
-          className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+          className="rounded-xl border border-gray-300 px-2 py-1.5 text-sm"
         >
           <option value="low">화질: low</option>
           <option value="medium">화질: medium</option>
@@ -344,7 +344,7 @@ export function Step4Images() {
           type="button"
           onClick={generatePrompts}
           disabled={promptGen.isStreaming}
-          className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+          className="flex items-center gap-1 rounded-xl border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
         >
           {promptGen.isStreaming && <Loader2 size={14} className="animate-spin" />}
           ① 프롬프트 생성
@@ -353,7 +353,7 @@ export function Step4Images() {
           type="button"
           onClick={handleGenerateAll}
           disabled={generatingSceneIds.size > 0}
-          className="flex items-center gap-1 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
+          className="flex items-center gap-1 rounded-xl bg-rose-500 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
         >
           <ImagePlus size={14} /> ② 전체 이미지 생성
         </button>
@@ -361,7 +361,7 @@ export function Step4Images() {
           <button
             type="button"
             onClick={handleRetryFailed}
-            className="flex items-center gap-1 rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+            className="flex items-center gap-1 rounded-xl border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
           >
             <RefreshCw size={14} /> 실패한 것만 다시 생성 ({failedSceneIds.size})
           </button>
@@ -442,7 +442,7 @@ export function Step4Images() {
 function PinnedThumb({ blobKey, onRemove }: { blobKey: string; onRemove: () => void }) {
   const url = useBlobUrl(blobKey);
   return (
-    <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-gray-200">
+    <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-gray-200">
       {url && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={url} alt="" className="h-full w-full object-cover" />
@@ -543,7 +543,7 @@ function SceneImageCard({
       </p>
 
       {prompt && (
-        <div className="mb-2 flex flex-col gap-1 rounded-lg bg-gray-50 p-2 text-xs">
+        <div className="mb-2 flex flex-col gap-1 rounded-xl bg-gray-50 p-2 text-xs">
           <textarea
             value={prompt.ko}
             onChange={(e) => onPromptChange({ ko: e.target.value, en: prompt.en })}
@@ -561,7 +561,7 @@ function SceneImageCard({
         </div>
       )}
 
-      <div className="mb-2 flex gap-1 rounded-lg bg-gray-100 p-1 text-xs">
+      <div className="mb-2 flex gap-1 rounded-xl bg-gray-100 p-1 text-xs">
         {SOURCE_TABS.map((tab) => (
           <button
             key={tab.id}
@@ -581,14 +581,14 @@ function SceneImageCard({
           type="button"
           disabled={!hasProductImage}
           onClick={onUseProduct}
-          className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 disabled:opacity-30"
+          className="flex items-center gap-1 rounded-xl border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 disabled:opacity-30"
         >
           <Pin size={12} /> 이 상품 사진을 장면 이미지로 사용
         </button>
       )}
 
       {sourceTab === "upload" && (
-        <label className="flex w-fit cursor-pointer items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
+        <label className="flex w-fit cursor-pointer items-center gap-1 rounded-xl border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
           <Upload size={12} /> 파일 선택
           <input
             type="file"
@@ -605,13 +605,13 @@ function SceneImageCard({
             <input
               value={stockQuery}
               onChange={(e) => setStockQuery(e.target.value)}
-              className="flex-1 rounded-lg border border-gray-300 px-2 py-1 text-xs"
+              className="flex-1 rounded-xl border border-gray-300 px-2 py-1 text-xs"
             />
             <button
               type="button"
               onClick={searchStock}
               disabled={stockLoading}
-              className="rounded-lg bg-gray-900 px-3 py-1 text-xs font-medium text-white disabled:opacity-40"
+              className="rounded-xl bg-rose-500 px-3 py-1 text-xs font-medium text-white disabled:opacity-40"
             >
               검색
             </button>
@@ -640,7 +640,7 @@ function SceneImageCard({
             type="button"
             onClick={onGenerateAi}
             disabled={isGenerating}
-            className="flex items-center gap-1 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
+            className="flex items-center gap-1 rounded-xl bg-rose-500 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
           >
             {isGenerating && <Loader2 size={12} className="animate-spin" />}
             이미지 생성
@@ -703,7 +703,7 @@ function SceneImageThumb({
   const url = useBlobUrl(image.blobKey);
   return (
     <div
-      className={`relative h-20 w-20 overflow-hidden rounded-lg border-2 ${
+      className={`relative h-20 w-20 overflow-hidden rounded-xl border-2 ${
         image.used ? "border-gray-900" : "border-transparent"
       }`}
     >

@@ -23,7 +23,7 @@ export function CostConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
+      <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-xl">
         <h3 className="text-base font-bold text-gray-900">유료로 진행할까요?</h3>
         <p className="mt-2 text-sm text-gray-600">
           무료 방식이 실패했어요. OpenAI 유료로 진행할까요? 예상 비용 약{" "}
@@ -47,7 +47,7 @@ export function CostConfirmModal({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+            className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
           >
             취소
           </button>
@@ -57,7 +57,7 @@ export function CostConfirmModal({
               if (autoAllow) setAutoAllowPaidThisSession(true);
               onConfirm();
             }}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+            className="rounded-xl bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-rose-600"
           >
             유료로 진행
           </button>

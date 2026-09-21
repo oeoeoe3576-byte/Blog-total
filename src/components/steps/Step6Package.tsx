@@ -174,14 +174,14 @@ export function Step6Package() {
                 type="button"
                 onClick={handleConvertMp4}
                 disabled={mp4Loading}
-                className="flex items-center gap-1 rounded-lg border border-gray-300 px-2 py-1 text-xs font-medium text-gray-700 disabled:opacity-40"
+                className="flex items-center gap-1 rounded-xl border border-gray-300 px-2 py-1 text-xs font-medium text-gray-700 disabled:opacity-40"
               >
                 {mp4Loading && <Loader2 size={12} className="animate-spin" />}
                 MP4로 변환 {mp4Loading && `(${Math.round(mp4Progress * 100)}%)`}
               </button>
             )}
           </div>
-          <video src={videoUrl} controls className="w-full max-w-[220px] rounded-lg" />
+          <video src={videoUrl} controls className="w-full max-w-[220px] rounded-xl" />
           {mp4Error && <p className="mt-1 text-xs text-orange-500">{mp4Error}</p>}
         </div>
       )}
@@ -190,7 +190,7 @@ export function Step6Package() {
         type="button"
         onClick={handleDownloadZip}
         disabled={zipLoading}
-        className="flex items-center justify-center gap-1.5 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+        className="flex items-center justify-center gap-1.5 rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
       >
         {zipLoading ? <Loader2 size={14} className="animate-spin" /> : <FileArchive size={14} />}
         {zipLoading ? "압축 중..." : "전체 ZIP 다운로드"}
