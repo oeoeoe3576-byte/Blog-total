@@ -40,6 +40,21 @@ const CTA_TYPE_GUIDE = `
 - DM/문의 유도형: "자세한 건 댓글이나 DM으로 물어보세요"
 `.trim();
 
+const RETENTION_GUIDE = `
+**쇼츠/릴스 알고리즘은 조회수가 아니라 "끝까지 본 비율"과 "다시 본 횟수"로 콘텐츠를 더 넓게 퍼뜨립니다.**
+그래서 대본을 짤 때 아래 두 가지 이탈 방지 기법을 반드시 적용하세요.
+
+- **오픈 루프(다음이 궁금하게 끝내기)**: hook과 중간 장면들은 결론을 다 주지 말고, 다음 장면에서만
+  풀리는 궁금증을 하나씩 남기고 끝내세요 (예: "근데 막상 써보니까 예상 못 한 게 하나 있더라고요" →
+  다음 장면에서 그걸 풀어준다). 각 장면의 narration 끝을 "그런데", "근데 문제는", "그래서 봤더니" 같은
+  연결어로 마무리해 다음 장면을 기대하게 만드세요.
+- **되감기 유도(루프 엔딩)**: 마지막 CTA 장면의 headline이나 narration 한 군데에 hook 장면의 핵심 단어나
+  질문을 살짝 다시 언급하세요. 영상이 끝났을 때 처음 장면이 다시 떠오르면 시청자가 무의식적으로
+  한 번 더 돌려보게 되고, 이게 완주율·재시청 지표를 올립니다.
+- 한 장면에는 정보를 하나만 담고, 장면 전환마다 화면(headline)이 바뀌는 느낌을 주세요. 같은 톤이
+  계속되면 이탈합니다.
+`.trim();
+
 const JSON_SCHEMA_GUIDE = `
 반드시 아래 JSON 스키마 형식으로만 응답하세요. 다른 설명이나 코드블록 없이 JSON 객체 하나만 출력하세요.
 
@@ -64,6 +79,8 @@ const JSON_SCHEMA_GUIDE = `
 ${HOOK_TYPE_GUIDE}
 
 ${CTA_TYPE_GUIDE}
+
+${RETENTION_GUIDE}
 `.trim();
 
 export function buildScriptSystemPrompt(experience: Experience): string {
