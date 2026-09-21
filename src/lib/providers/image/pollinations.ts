@@ -14,7 +14,10 @@ export const pollinationsImageAdapter: ProviderAdapter<ImageGenInput, Buffer> = 
 
   run: async (input) => {
     const { width, height } = ASPECT_SIZES[input.aspect];
-    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(input.promptEn)}?width=${width}&height=${height}&nologo=true`;
+    // seed를 매번 무작위로 줘서 같은 프롬프트를 재시도할 때 동일한(또는 캐시된) 이미지가
+    // 반복 반환되지 않게 한다. model은 기본값(flux)을 명시해 향후 API 기본값 변경에 방어한다.
+    const seed = Math.floor(Math.random() * 1_000_000_000);
+    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(input.promptEn)}?width=${width}&height=${height}&nologo=true&model=flux&seed=${seed}`;
 
     let res: Response;
     try {

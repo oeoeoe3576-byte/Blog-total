@@ -16,6 +16,7 @@ export interface NarrationChunk {
 export interface TimelineScene {
   scene: Scene;
   imageBlobKey?: string;
+  mediaType: "image" | "video";
   audioBlob?: Blob;
   startTime: number; // 전체 영상 기준 절대 시간(초)
   duration: number;
@@ -58,6 +59,7 @@ export function buildTimeline(
   getImageKey: (sceneId: string) => string | undefined,
   getAudio: (sceneId: string) => AudioInfo | undefined,
   dubbingOn: boolean,
+  getMediaType?: (sceneId: string) => "image" | "video" | undefined,
 ): Timeline {
   let cursor = 0;
 
@@ -81,6 +83,7 @@ export function buildTimeline(
     const timelineScene: TimelineScene = {
       scene,
       imageBlobKey,
+      mediaType: getMediaType?.(scene.id) ?? "image",
       audioBlob: audio?.blob,
       startTime: cursor,
       duration,

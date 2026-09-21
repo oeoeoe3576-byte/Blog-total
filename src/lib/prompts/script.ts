@@ -1,7 +1,7 @@
 // 수정 가이드: 장면 개수, 목표 시간, 자막 길이를 바꾸려면 이 파일만 고치면 된다.
 
 import type { Experience } from "@/lib/types";
-import { COMMON_SYSTEM_RULES } from "./common";
+import { BRAND_VOICE_GUIDE, COMMON_SYSTEM_RULES } from "./common";
 
 /** 한국어 구어체 기준 초당 대략 음절 수 (프롬프트에 목표 글자수를 제시하기 위한 근사치) */
 const SYLLABLES_PER_SECOND = 5.5;
@@ -27,9 +27,13 @@ const JSON_SCHEMA_GUIDE = `
   중간 장면들의 kind는 모두 "scene"으로 표기하세요.
 - headline: 자막으로 화면에 크게 나올 한 줄. 15자 내외로 짧고 강하게. 강조하고 싶은 핵심 단어는
   [[핵심어]] 처럼 이중 대괄호로 감싸세요.
-- narration: 실제 내레이션(음성)으로 읽을 구어체 문장. 장면당 1~2문장.
+- narration: 실제 내레이션(음성)으로 읽을 구어체 문장. 장면당 1~2문장. 사람이 말하듯 자연스럽게 쓰세요
+  (~습니다체 금지, ~이거든요/~더라고요/~인 것 같아요 같은 구어체 어미를 쓰세요). 딱딱한 정보 나열이 아니라
+  친구에게 말해주듯 쓰세요.
 - narration 전체를 합친 글자 수가 대략 ${TARGET_CHAR_RANGE.min}~${TARGET_CHAR_RANGE.max}자 사이가 되도록
   하세요(전체 낭독 시간 ${TARGET_MIN_SECONDS}~${TARGET_MAX_SECONDS}초 목표, 한국어 기준 초당 약 ${SYLLABLES_PER_SECOND}음절).
+- hook 장면의 narration은 위 브랜드 톤 가이드의 Hook 유형(질문형/공감형/발견·후회형) 중 하나로 시작해서
+  처음 1초 안에 눈길을 끌어야 합니다.
 - CTA 장면의 narration에는 "프로필/댓글의 링크에서 확인해보세요" 같은 표현을 사용하세요.
 `.trim();
 
@@ -42,6 +46,7 @@ export function buildScriptSystemPrompt(experience: Experience): string {
   return [
     COMMON_SYSTEM_RULES,
     "당신은 30~50초 분량 숏폼(쇼츠/릴스) 영상 대본을 기획합니다.",
+    BRAND_VOICE_GUIDE,
     experienceGuide,
     JSON_SCHEMA_GUIDE,
   ].join("\n\n");

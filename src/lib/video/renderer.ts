@@ -66,16 +66,26 @@ function drawGradientFallback(ctx: CanvasRenderingContext2D, width: number, heig
   ctx.fillRect(0, 0, width, height);
 }
 
+type MediaSource = ImageBitmap | HTMLVideoElement;
+
+function sourceDimensions(source: MediaSource): { width: number; height: number } {
+  if (source instanceof HTMLVideoElement) {
+    return { width: source.videoWidth, height: source.videoHeight };
+  }
+  return { width: source.width, height: source.height };
+}
+
 function drawCoverImage(
   ctx: CanvasRenderingContext2D,
-  bitmap: ImageBitmap,
+  source: MediaSource,
   width: number,
   height: number,
   scale: number,
   panX: number,
   panY: number,
 ) {
-  const bitmapRatio = bitmap.width / bitmap.height;
+  const { width: srcW, height: srcH } = sourceDimensions(source);
+  const bitmapRatio = srcW / srcH;
   const canvasRatio = width / height;
 
   let drawW: number;
@@ -92,7 +102,7 @@ function drawCoverImage(
   const baseY = (height - drawH) / 2;
   const dx = baseX + panX * width;
   const dy = baseY + panY * height;
-  ctx.drawImage(bitmap, dx, dy, drawW, drawH);
+  ctx.drawImage(source, dx, dy, drawW, drawH);
 }
 
 function drawVignette(ctx: CanvasRenderingContext2D, width: number, height: number) {
@@ -114,7 +124,9 @@ function drawVignette(ctx: CanvasRenderingContext2D, width: number, height: numb
 function drawSceneBackground(
   ctx: CanvasRenderingContext2D,
   images: Map<string, ImageBitmap>,
+  videos: Map<string, HTMLVideoElement>,
   imageBlobKey: string | undefined,
+  mediaType: "image" | "video",
   sceneId: string,
   index: number,
   localT: number,
@@ -125,21 +137,35 @@ function drawSceneBackground(
 ) {
   const progress = duration > 0 ? Math.min(1, Math.max(0, localT / duration)) : 0;
   const eased = easeInOutQuad(progress);
-  const bitmap = imageBlobKey ? images.get(imageBlobKey) : undefined;
 
-  // 이미지가 없거나(디코딩 실패 등으로) 그리다가 예외가 나면 그라데이션으로 폴백한다.
+  // 이미지/영상이 없거나(디코딩 실패 등으로) 그리다가 예외가 나면 그라데이션으로 폴백한다.
   // ImageBitmap은 드물게 detach될 수 있어(예: 브라우저 메모리 회수) 방어적으로 처리한다.
-  let drewImage = false;
-  if (bitmap && bitmap.width > 0 && bitmap.height > 0) {
-    try {
-      drawBitmapWithMotion(ctx, bitmap, index, eased, width, height);
-      drewImage = true;
-    } catch {
-      drewImage = false;
+  let drewMedia = false;
+
+  if (mediaType === "video") {
+    const video = imageBlobKey ? videos.get(imageBlobKey) : undefined;
+    if (video && video.videoWidth > 0 && video.videoHeight > 0) {
+      try {
+        if (video.paused) void video.play().catch(() => {});
+        drawCoverImage(ctx, video, width, height, 1, 0, 0);
+        drewMedia = true;
+      } catch {
+        drewMedia = false;
+      }
+    }
+  } else {
+    const bitmap = imageBlobKey ? images.get(imageBlobKey) : undefined;
+    if (bitmap && bitmap.width > 0 && bitmap.height > 0) {
+      try {
+        drawBitmapWithMotion(ctx, bitmap, index, eased, width, height);
+        drewMedia = true;
+      } catch {
+        drewMedia = false;
+      }
     }
   }
 
-  if (!drewImage) {
+  if (!drewMedia) {
     drawGradientFallback(ctx, width, height, sceneId);
   }
 
@@ -265,6 +291,7 @@ export function drawFrame(
   t: number,
   settings: RenderSettings,
   images: Map<string, ImageBitmap>,
+  videos: Map<string, HTMLVideoElement> = new Map(),
 ): void {
   const canvas = ctx.canvas;
   const width = canvas.width;
@@ -284,7 +311,9 @@ export function drawFrame(
     drawSceneBackground(
       ctx,
       images,
+      videos,
       prev.imageBlobKey,
+      prev.mediaType,
       prev.scene.id,
       index - 1,
       prev.duration,
@@ -298,7 +327,9 @@ export function drawFrame(
     drawSceneBackground(
       ctx,
       images,
+      videos,
       current.imageBlobKey,
+      current.mediaType,
       current.scene.id,
       index,
       localT,
@@ -312,7 +343,9 @@ export function drawFrame(
     drawSceneBackground(
       ctx,
       images,
+      videos,
       current.imageBlobKey,
+      current.mediaType,
       current.scene.id,
       index,
       localT,

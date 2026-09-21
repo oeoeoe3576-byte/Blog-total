@@ -48,6 +48,8 @@ export interface SceneImage {
   used: boolean;
   /** 스톡 이미지 출처 크레딧(작가명 등). 발행 패키지의 credits.txt에 쓰인다. */
   credit?: string;
+  /** 비어있으면 "image"로 취급한다(하위 호환). "video"면 라이브포토/영상 클립을 그대로 배경으로 재생한다. */
+  mediaType?: "image" | "video";
 }
 
 export type ClipStyle = "auto" | "emotional" | "cinematic";

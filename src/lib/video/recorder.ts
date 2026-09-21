@@ -21,6 +21,7 @@ export interface RecordOptions {
   timeline: Timeline;
   settings: RenderSettings;
   images: Map<string, ImageBitmap>;
+  videos?: Map<string, HTMLVideoElement>;
   resolution: Resolution;
   onProgress?: (currentSeconds: number, totalSeconds: number) => void;
   signal?: AbortSignal;
@@ -128,7 +129,14 @@ export async function recordVideo(options: RecordOptions): Promise<RecordResult>
         }
         const t = audioCtx.currentTime - startTime;
         if (t >= 0) {
-          drawFrame(ctx!, options.timeline, Math.min(t, totalDuration), options.settings, options.images);
+          drawFrame(
+            ctx!,
+            options.timeline,
+            Math.min(t, totalDuration),
+            options.settings,
+            options.images,
+            options.videos,
+          );
           options.onProgress?.(Math.min(t, totalDuration), totalDuration);
         }
         if (t >= totalDuration + 0.3) {

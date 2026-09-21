@@ -17,6 +17,7 @@ import {
 } from "@/lib/imageUtils";
 import { buildImagePromptsSystemPrompt, buildImagePromptsUserPrompt } from "@/lib/prompts/imagePrompts";
 import { imagePromptsResponseSchema } from "@/lib/schemas";
+import { stripHeadlineMarkup } from "@/lib/video/textLayout";
 import { ROUGH_COST_WON } from "@/lib/cost";
 import { runWithConcurrencyLimit } from "@/lib/concurrency";
 import { CostConfirmModal } from "@/components/CostConfirmModal";
@@ -128,20 +129,21 @@ export function Step4Images() {
     }
   };
 
-  const generatePrompts = async () => {
+  const generatePrompts = async (targetScenes: Scene[] = scenes ?? []) => {
+    if (targetScenes.length === 0) return true;
     setPromptsError(null);
     if (settings.demoMode) {
-      for (const scene of scenes) {
+      for (const scene of targetScenes) {
         setImagePrompt(scene.id, {
           ko: `${scene.headline} 장면의 라이프스타일 사진`,
           en: `lifestyle photo depicting: ${scene.narration}`,
         });
       }
-      return;
+      return true;
     }
 
     const system = buildImagePromptsSystemPrompt();
-    const user = buildImagePromptsUserPrompt(scenes);
+    const user = buildImagePromptsUserPrompt(targetScenes);
     const attempt = (providerOrder: ("gemini" | "openai")[]) =>
       promptGen.generate({ task: "imagePrompts", system, user, providerOrder, apiKeys: settings.apiKeys });
 
@@ -150,12 +152,12 @@ export function Step4Images() {
       const proceed = await paidConfirm.requestConfirm();
       if (!proceed) {
         setPromptsError(result.error.message);
-        return;
+        return false;
       }
       result = await attempt(["openai"]);
       if (!result.ok) {
         setPromptsError(result.error.message);
-        return;
+        return false;
       }
       addSessionCost(ROUGH_COST_WON.textGeneration);
     }
@@ -163,12 +165,20 @@ export function Step4Images() {
     for (const p of result.data.prompts) {
       setImagePrompt(p.sceneId, { ko: p.ko, en: p.en });
     }
+    return true;
   };
 
   const generateSceneImage = async (scene: Scene): Promise<boolean> => {
     markGenerating(scene.id, true);
     try {
-      const promptEn = imagePrompts[scene.id]?.en || `${scene.headline}. ${scene.narration}`;
+      // AI 이미지 프롬프트가 아직 없으면(①번 버튼을 건너뛴 경우) 이미지 생성 전에 자동으로 만든다.
+      // 프롬프트 없이 자막 원문([[ ]] 마크업이 섞인 한국어)을 그대로 이미지 모델에 넣으면 내용과
+      // 무관한 이미지가 나오는 원인이 됐다.
+      if (!useAppStore.getState().imagePrompts[scene.id]) {
+        await generatePrompts([scene]);
+      }
+      const freshPrompt = useAppStore.getState().imagePrompts[scene.id];
+      const promptEn = freshPrompt?.en || `Photo of ${stripHeadlineMarkup(scene.headline)}. ${scene.narration}`;
 
       if (settings.demoMode) {
         const blob = await generateDemoImageBlob(scene.headline, aspect);
@@ -342,7 +352,7 @@ export function Step4Images() {
         </select>
         <button
           type="button"
-          onClick={generatePrompts}
+          onClick={() => generatePrompts()}
           disabled={promptGen.isStreaming}
           className="flex items-center gap-1 rounded-xl border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
         >
@@ -397,9 +407,16 @@ export function Step4Images() {
               });
             }}
             onUploadFile={async (file) => {
-              const resized = await resizeForUpload(file);
+              const isVideo = file.type.startsWith("video/");
               const key = newId("scene-img");
-              await saveBlob(key, resized);
+              if (isVideo) {
+                // 라이브 포토(동영상)나 짧은 영상 클립은 리사이즈 없이 그대로 저장한다.
+                // 최종 영상 렌더러가 이 블롭을 배경 영상으로 직접 재생한다.
+                await saveBlob(key, file);
+              } else {
+                const resized = await resizeForUpload(file);
+                await saveBlob(key, resized);
+              }
               addSceneImage({
                 id: newId("img"),
                 sceneId: scene.id,
@@ -407,6 +424,7 @@ export function Step4Images() {
                 provider: "upload",
                 source: "upload",
                 used: true,
+                mediaType: isVideo ? "video" : "image",
               });
             }}
             onPickStock={async (stock: StockResult) => {
@@ -588,15 +606,20 @@ function SceneImageCard({
       )}
 
       {sourceTab === "upload" && (
-        <label className="flex w-fit cursor-pointer items-center gap-1 rounded-xl border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
-          <Upload size={12} /> 파일 선택
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => e.target.files?.[0] && onUploadFile(e.target.files[0])}
-          />
-        </label>
+        <div className="flex flex-col gap-1">
+          <label className="flex w-fit cursor-pointer items-center gap-1 rounded-xl border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
+            <Upload size={12} /> 파일 선택 (사진/영상)
+            <input
+              type="file"
+              accept="image/*,video/*"
+              className="hidden"
+              onChange={(e) => e.target.files?.[0] && onUploadFile(e.target.files[0])}
+            />
+          </label>
+          <p className="text-[11px] text-gray-400">
+            아이폰 라이브 포토는 공유 시 &quot;라이브 포토로&quot;가 아닌 &quot;동영상으로&quot;를 선택해서 저장한 뒤 올려주세요.
+          </p>
+        </div>
       )}
 
       {sourceTab === "stock" && (
@@ -661,7 +684,13 @@ function SceneImageCard({
         </div>
       )}
 
-      {usedImage && (
+      {usedImage && usedImage.mediaType === "video" && (
+        <p className="mt-2 text-xs text-gray-400">
+          영상 클립은 최종 영상에 그대로 배경으로 재생돼요. 블로그/스레드용 사진 자르기는 지원하지 않아요.
+        </p>
+      )}
+
+      {usedImage && usedImage.mediaType !== "video" && (
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <ProviderBadge provider={usedImage.provider} />
           <button
@@ -707,9 +736,21 @@ function SceneImageThumb({
         image.used ? "border-gray-900" : "border-transparent"
       }`}
     >
-      {url && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt="" className="h-full w-full cursor-pointer object-cover" onClick={onSelect} />
+      {url && image.mediaType === "video" ? (
+        <video
+          src={url}
+          muted
+          playsInline
+          loop
+          autoPlay
+          className="h-full w-full cursor-pointer object-cover"
+          onClick={onSelect}
+        />
+      ) : (
+        url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt="" className="h-full w-full cursor-pointer object-cover" onClick={onSelect} />
+        )
       )}
       <button
         type="button"

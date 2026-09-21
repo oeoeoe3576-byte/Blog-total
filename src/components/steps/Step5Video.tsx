@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Loader2, Play, RotateCcw, Square, Volume2 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { useSceneImageBitmaps } from "@/hooks/useSceneImageBitmaps";
+import { useSceneVideoElements } from "@/hooks/useSceneVideoElements";
 import { useDubbingAudioCache } from "@/hooks/useDubbingAudioCache";
 import { useTtsGeneration } from "@/hooks/useTtsGeneration";
 import { usePaidConfirm } from "@/hooks/usePaidConfirm";
@@ -39,6 +40,7 @@ export function Step5Video({ active }: { active: boolean }) {
   const addSessionCost = useAppStore((s) => s.addSessionCost);
 
   const images = useSceneImageBitmaps(sceneImages);
+  const videos = useSceneVideoElements(sceneImages);
   const dubbingCache = useDubbingAudioCache(dubbingAudioKeys);
   const ttsGen = useTtsGeneration();
   const paidConfirm = usePaidConfirm();
@@ -65,6 +67,7 @@ export function Step5Video({ active }: { active: boolean }) {
       (sceneId) => sceneImages.find((img) => img.sceneId === sceneId && img.used)?.blobKey,
       (sceneId) => dubbingCache[sceneId],
       videoSettings.dubbing,
+      (sceneId) => sceneImages.find((img) => img.sceneId === sceneId && img.used)?.mediaType,
     );
   }, [scenes, sceneImages, dubbingCache, videoSettings.dubbing]);
 
@@ -88,7 +91,7 @@ export function Step5Video({ active }: { active: boolean }) {
       const loop = () => {
         if (cancelled) return;
         const elapsed = ((performance.now() - start) / 1000) % Math.max(timeline.totalDuration, 0.1);
-        drawFrame(ctx, timeline, elapsed, renderSettings, images);
+        drawFrame(ctx, timeline, elapsed, renderSettings, images, videos);
         previewRafRef.current = requestAnimationFrame(loop);
       };
       previewRafRef.current = requestAnimationFrame(loop);
@@ -98,7 +101,7 @@ export function Step5Video({ active }: { active: boolean }) {
       cancelled = true;
       if (previewRafRef.current) cancelAnimationFrame(previewRafRef.current);
     };
-  }, [active, timeline, renderSettings, images, isRecording]);
+  }, [active, timeline, renderSettings, images, videos, isRecording]);
 
   useEffect(() => {
     const onVisibility = () => setTabHiddenWarning(document.hidden && isRecording);
@@ -174,6 +177,7 @@ export function Step5Video({ active }: { active: boolean }) {
         timeline,
         settings: renderSettings,
         images,
+        videos,
         resolution: videoSettings.resolution,
         signal: controller.signal,
         onProgress: (t, total) => setProgress(total > 0 ? t / total : 0),
