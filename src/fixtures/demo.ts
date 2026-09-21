@@ -77,12 +77,14 @@ export async function generateDemoImageBlob(label: string, aspect: Aspect): Prom
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
-  ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.font = "bold 28px sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  const text = label.length > 20 ? label.slice(0, 20) + "…" : label;
-  ctx.fillText(text, width / 2, height / 2, width - 40);
+  // 장면 헤드라인은 실제 영상 렌더러가 이미 자막으로 그려주므로 여기서는 중복으로
+  // 넣지 않는다(가운데에 큰 라벨을 넣으면 렌더러의 자막 오버레이와 겹쳐 보였다).
+  // 데모 이미지임을 구분할 수 있게 구석에 작은 워터마크만 남긴다.
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "12px sans-serif";
+  ctx.textAlign = "right";
+  ctx.textBaseline = "bottom";
+  ctx.fillText("데모 이미지", width - 12, height - 12);
 
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
