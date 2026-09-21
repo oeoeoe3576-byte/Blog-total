@@ -44,6 +44,9 @@ export default function Home() {
             ? 2
             : 1;
 
+  const [manualOpenStep, setManualOpenStep] = useState<number | null>(null);
+  const openStep = manualOpenStep ?? currentStep;
+
   const steps: {
     title: string;
     description: string;
@@ -133,6 +136,8 @@ export default function Home() {
             description={step.description}
             status={step.status}
             onRestart={step.onRestart}
+            isOpen={openStep === i + 1}
+            onToggle={() => setManualOpenStep(openStep === i + 1 ? 0 : i + 1)}
           >
             {step.content}
           </StepCard>
