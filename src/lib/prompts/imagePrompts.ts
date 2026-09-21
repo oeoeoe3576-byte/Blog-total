@@ -49,3 +49,20 @@ export function buildImagePromptsUserPrompt(scenes: Scene[]): string {
     .join("\n");
   return `아래 장면들에 어울리는 이미지 프롬프트를 만들어주세요.\n\n${list}`;
 }
+
+/**
+ * LLM 호출 없이 고정된 템플릿으로 만드는 "배경 교체" 편집 지시문. 실제 상품 사진을 참조 이미지로
+ * 함께 보내는 이미지 편집(Gemini/OpenAI image edit) 요청 전용이다 — 텍스트만으로 새로 그리는
+ * imagePrompts와 달리, 제품 픽셀은 그대로 두고 배경만 바꾸라고 명시적으로 지시한다.
+ */
+export function buildBackgroundEditPrompt(sceneContext?: string): string {
+  const context = sceneContext?.trim();
+  return [
+    "Edit this exact product photo. Keep the product itself completely unchanged",
+    "— same shape, color, proportions, text, and logos, pixel-for-pixel identical to the input photo.",
+    "Only replace the background behind the product with a clean, photorealistic lifestyle setting",
+    context ? `that fits this context: ${context}.` : "that suits the product naturally.",
+    "Use soft, natural daylight lighting that matches the product. Do not add any text, logos, watermarks,",
+    "or extra objects that would cover the product. Do not redraw or restyle the product itself.",
+  ].join(" ");
+}

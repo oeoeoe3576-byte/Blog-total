@@ -15,7 +15,11 @@ import {
   resizeForUpload,
   type Aspect,
 } from "@/lib/imageUtils";
-import { buildImagePromptsSystemPrompt, buildImagePromptsUserPrompt } from "@/lib/prompts/imagePrompts";
+import {
+  buildBackgroundEditPrompt,
+  buildImagePromptsSystemPrompt,
+  buildImagePromptsUserPrompt,
+} from "@/lib/prompts/imagePrompts";
 import { imagePromptsResponseSchema } from "@/lib/schemas";
 import { stripHeadlineMarkup } from "@/lib/video/textLayout";
 import { ROUGH_COST_WON } from "@/lib/cost";
@@ -250,6 +254,83 @@ export function Step4Images() {
     }
   };
 
+  const editProductBackgroundForScene = async (scene: Scene): Promise<boolean> => {
+    if (!productImageKeys[0]) return false;
+    markGenerating(scene.id, true);
+    try {
+      const context = `${stripHeadlineMarkup(scene.headline)}. ${scene.narration}`;
+      const promptEn = buildBackgroundEditPrompt(context);
+
+      if (settings.demoMode) {
+        const blob = await generateDemoImageBlob(scene.headline, aspect);
+        const key = newId("scene-img");
+        await saveBlob(key, blob);
+        addSceneImage({
+          id: newId("img"),
+          sceneId: scene.id,
+          blobKey: key,
+          provider: "데모",
+          source: "product",
+          used: true,
+        });
+        return true;
+      }
+
+      const { loadBlob } = await import("@/lib/storage");
+      const productBlob = await loadBlob(productImageKeys[0]);
+      if (!productBlob) {
+        alert("고정된 상품 사진을 불러오지 못했어요.");
+        return false;
+      }
+      const refImageBase64 = await blobToBase64(productBlob);
+
+      // 배경 편집은 실제 참조 이미지를 이해하는 프로바이더(Gemini/OpenAI)만 써야 한다.
+      // Pollinations/HuggingFace는 참조 이미지를 무시하고 완전히 새로 그려서, 실제 상품과
+      // 무관한 가짜 이미지가 나올 수 있다.
+      const attempt = (providerOrder: ImageProviderId[]) =>
+        imageGen.generate({
+          promptEn,
+          aspect,
+          quality,
+          refImageBase64,
+          providerOrder,
+          apiKeys: settings.apiKeys,
+        });
+
+      let result = await attempt(["gemini"]);
+      if (!result.ok) {
+        const proceed = await paidConfirm.requestConfirm();
+        if (!proceed) {
+          alert(`배경 편집에 실패했어요: ${result.error.message}`);
+          return false;
+        }
+        result = await attempt(["openai"]);
+        if (!result.ok) {
+          alert(`배경 편집에 실패했어요: ${result.error.message}`);
+          return false;
+        }
+        addSessionCost(ROUGH_COST_WON.imageGeneration);
+      }
+
+      const key = newId("scene-img");
+      await saveBlob(key, result.blob);
+      addSceneImage({
+        id: newId("img"),
+        sceneId: scene.id,
+        blobKey: key,
+        provider: result.provider,
+        source: "product",
+        used: true,
+      });
+
+      return true;
+    } catch {
+      return false;
+    } finally {
+      markGenerating(scene.id, false);
+    }
+  };
+
   const handleGenerateAll = async () => {
     setFailedSceneIds(new Set());
     const targets = scenes.filter((s) => !sceneImages.some((img) => img.sceneId === s.id && img.used));
@@ -395,6 +476,7 @@ export function Step4Images() {
             productImageKey={productImageKeys[0]}
             apiKeys={settings.apiKeys}
             onGenerateAi={() => generateSceneImage(scene)}
+            onEditBackground={() => editProductBackgroundForScene(scene)}
             onUseProduct={async () => {
               if (!productImageKeys[0]) return;
               addSceneImage({
@@ -487,8 +569,9 @@ interface SceneImageCardProps {
   onSourceTabChange: (tab: SceneImageSource) => void;
   hasProductImage: boolean;
   productImageKey?: string;
-  apiKeys: { pexels?: string };
+  apiKeys: { pexels?: string; gemini?: string };
   onGenerateAi: () => void;
+  onEditBackground: () => void;
   onUseProduct: () => void;
   onUploadFile: (file: File) => void;
   onPickStock: (stock: StockResult) => void;
@@ -515,6 +598,7 @@ function SceneImageCard({
   productImageKey,
   apiKeys,
   onGenerateAi,
+  onEditBackground,
   onUseProduct,
   onUploadFile,
   onPickStock,
@@ -595,14 +679,31 @@ function SceneImageCard({
       </div>
 
       {sourceTab === "product" && (
-        <button
-          type="button"
-          disabled={!hasProductImage}
-          onClick={onUseProduct}
-          className="flex items-center gap-1 rounded-xl border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 disabled:opacity-30"
-        >
-          <Pin size={12} /> 이 상품 사진을 장면 이미지로 사용
-        </button>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={!hasProductImage}
+              onClick={onUseProduct}
+              className="flex items-center gap-1 rounded-xl border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 disabled:opacity-30"
+            >
+              <Pin size={12} /> 이 상품 사진을 그대로 사용
+            </button>
+            <button
+              type="button"
+              disabled={!hasProductImage || isGenerating}
+              onClick={onEditBackground}
+              className="flex items-center gap-1 rounded-xl bg-rose-500 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
+            >
+              {isGenerating && <Loader2 size={12} className="animate-spin" />}
+              <ImagePlus size={12} /> 배경만 새로 만들어서 사용
+            </button>
+          </div>
+          <p className="text-[11px] text-gray-400">
+            제품은 실제 사진 그대로 두고 배경만 AI로 자연스럽게 바꿔요. 완전히 새로 그리는 &quot;AI
+            생성&quot;과 달리 제품 형태가 그대로 유지돼요{!apiKeys.gemini && " (Gemini 키가 없으면 유료로 진행할지 물어봐요)"}.
+          </p>
+        </div>
       )}
 
       {sourceTab === "upload" && (
