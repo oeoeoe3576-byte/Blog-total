@@ -153,7 +153,7 @@ export function Step4Images() {
 
     let result = await attempt(["gemini"]);
     if (!result.ok) {
-      const proceed = await paidConfirm.requestConfirm();
+      const proceed = await paidConfirm.requestConfirm(result.error.message);
       if (!proceed) {
         setPromptsError(result.error.message);
         return false;
@@ -218,7 +218,7 @@ export function Step4Images() {
 
       let result = await attempt(FREE_IMAGE_PROVIDERS);
       if (!result.ok) {
-        const proceed = await paidConfirm.requestConfirm();
+        const proceed = await paidConfirm.requestConfirm(result.error.message);
         if (!proceed) {
           alert(`이미지 생성에 실패했어요: ${result.error.message}`);
           return false;
@@ -299,7 +299,7 @@ export function Step4Images() {
 
       let result = await attempt(["gemini"]);
       if (!result.ok) {
-        const proceed = await paidConfirm.requestConfirm();
+        const proceed = await paidConfirm.requestConfirm(result.error.message);
         if (!proceed) {
           alert(`배경 편집에 실패했어요: ${result.error.message}`);
           return false;
@@ -532,6 +532,7 @@ export function Step4Images() {
       <CostConfirmModal
         open={paidConfirm.modalOpen}
         estimatedWon={ROUGH_COST_WON.imageGeneration}
+        failureReason={paidConfirm.failureReason}
         onCancel={paidConfirm.cancel}
         onConfirm={paidConfirm.confirm}
       />

@@ -102,7 +102,7 @@ export function Step1Blog() {
       return;
     }
 
-    const proceed = await paidConfirm.requestConfirm();
+    const proceed = await paidConfirm.requestConfirm(freeResult.error.message);
     if (!proceed) {
       setLastError(freeResult.error);
       return;
@@ -336,6 +336,7 @@ export function Step1Blog() {
       <CostConfirmModal
         open={paidConfirm.modalOpen}
         estimatedWon={ROUGH_COST_WON.textGeneration}
+        failureReason={paidConfirm.failureReason}
         onCancel={paidConfirm.cancel}
         onConfirm={paidConfirm.confirm}
       />

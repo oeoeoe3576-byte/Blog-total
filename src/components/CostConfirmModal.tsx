@@ -6,6 +6,7 @@ import { useAppStore } from "@/lib/store";
 interface CostConfirmModalProps {
   open: boolean;
   estimatedWon: number;
+  failureReason?: string | null;
   onCancel: () => void;
   onConfirm: () => void;
 }
@@ -13,6 +14,7 @@ interface CostConfirmModalProps {
 export function CostConfirmModal({
   open,
   estimatedWon,
+  failureReason,
   onCancel,
   onConfirm,
 }: CostConfirmModalProps) {
@@ -32,6 +34,13 @@ export function CostConfirmModal({
           </span>
           입니다.
         </p>
+
+        {failureReason && (
+          <div className="mt-3 rounded-xl bg-red-50 p-2.5 text-xs text-red-700">
+            <span className="font-medium">실패 이유: </span>
+            {failureReason}
+          </div>
+        )}
 
         <label className="mt-4 flex items-center gap-2 text-sm text-gray-600">
           <input

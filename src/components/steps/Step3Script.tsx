@@ -73,7 +73,7 @@ export function Step3Script() {
 
     let result = await attempt(["gemini"]);
     if (!result.ok) {
-      const proceed = await paidConfirm.requestConfirm();
+      const proceed = await paidConfirm.requestConfirm(result.error.message);
       if (!proceed) {
         setLastError(result.error.message);
         return;
@@ -273,6 +273,7 @@ export function Step3Script() {
       <CostConfirmModal
         open={paidConfirm.modalOpen}
         estimatedWon={ROUGH_COST_WON.textGeneration}
+        failureReason={paidConfirm.failureReason}
         onCancel={paidConfirm.cancel}
         onConfirm={paidConfirm.confirm}
       />

@@ -142,7 +142,7 @@ export function Step5Video({ active }: { active: boolean }) {
 
       let result = await attempt(["edge", "gemini"]);
       if (!result.ok) {
-        const proceed = await paidConfirm.requestConfirm();
+        const proceed = await paidConfirm.requestConfirm(result.error.message);
         if (!proceed) {
           errors[scene.id] = result.error.message;
           return;
@@ -413,6 +413,7 @@ export function Step5Video({ active }: { active: boolean }) {
       <CostConfirmModal
         open={paidConfirm.modalOpen}
         estimatedWon={ROUGH_COST_WON.ttsGeneration}
+        failureReason={paidConfirm.failureReason}
         onCancel={paidConfirm.cancel}
         onConfirm={paidConfirm.confirm}
       />
