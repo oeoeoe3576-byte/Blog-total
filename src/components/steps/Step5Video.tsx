@@ -25,7 +25,7 @@ function newId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function Step5Video() {
+export function Step5Video({ active }: { active: boolean }) {
   const settings = useAppStore((s) => s.settings);
   const product = useAppStore((s) => s.product);
   const scenes = useAppStore((s) => s.scenes);
@@ -75,7 +75,7 @@ export function Step5Video() {
 
   // 실시간 미리보기 루프(오디오 없이 반복 재생)
   useEffect(() => {
-    if (!timeline || !renderSettings || isRecording) return;
+    if (!active || !timeline || !renderSettings || isRecording) return;
     const canvas = previewCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -98,7 +98,7 @@ export function Step5Video() {
       cancelled = true;
       if (previewRafRef.current) cancelAnimationFrame(previewRafRef.current);
     };
-  }, [timeline, renderSettings, images, isRecording]);
+  }, [active, timeline, renderSettings, images, isRecording]);
 
   useEffect(() => {
     const onVisibility = () => setTabHiddenWarning(document.hidden && isRecording);

@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
 
 export type StepStatus = "대기" | "생성 중" | "완료";
 
@@ -17,8 +16,6 @@ interface StepCardProps {
   description: string;
   status: StepStatus;
   onRestart?: () => void;
-  isOpen: boolean;
-  onToggle: () => void;
   children?: ReactNode;
 }
 
@@ -28,18 +25,11 @@ export function StepCard({
   description,
   status,
   onRestart,
-  isOpen,
-  onToggle,
   children,
 }: StepCardProps) {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={isOpen}
-        className="flex w-full items-start justify-between gap-3 p-5 text-left"
-      >
+    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <header className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-900 text-sm font-bold text-white">
             {number}
@@ -56,31 +46,17 @@ export function StepCard({
             {status}
           </span>
           {onRestart && (
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={(e) => {
-                e.stopPropagation();
-                onRestart();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.stopPropagation();
-                  onRestart();
-                }
-              }}
+            <button
+              type="button"
+              onClick={onRestart}
               className="rounded-full border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-500 hover:bg-gray-50"
             >
               새로 시작
-            </span>
+            </button>
           )}
-          <ChevronDown
-            size={18}
-            className={`text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
-          />
         </div>
-      </button>
-      {isOpen && children && <div className="px-5 pb-5">{children}</div>}
+      </header>
+      {children && <div className="mt-4">{children}</div>}
     </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Settings } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings } from "lucide-react";
 import { Stepper } from "@/components/Stepper";
 import { StepCard, type StepStatus } from "@/components/StepCard";
 import { SettingsDialog } from "@/components/SettingsDialog";
@@ -87,7 +87,7 @@ export default function Home() {
       description: "자막과 더빙이 입혀진 9:16 영상을 만들어요.",
       status: videoBlobKey ? "완료" : "대기",
       onRestart: videoBlobKey ? resetVideo : undefined,
-      content: <Step5Video />,
+      content: <Step5Video active={openStep === 5} />,
     },
     {
       title: "발행 패키지",
@@ -123,25 +123,47 @@ export default function Home() {
           </button>
         </div>
         <div className="mx-auto max-w-3xl px-4 pb-2">
-          <Stepper currentStep={currentStep} />
+          <Stepper
+            progressStep={currentStep}
+            activeStep={openStep}
+            onStepClick={(step) => setManualOpenStep(step)}
+          />
         </div>
       </header>
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-6">
         {steps.map((step, i) => (
-          <StepCard
-            key={step.title}
-            number={i + 1}
-            title={step.title}
-            description={step.description}
-            status={step.status}
-            onRestart={step.onRestart}
-            isOpen={openStep === i + 1}
-            onToggle={() => setManualOpenStep(openStep === i + 1 ? 0 : i + 1)}
-          >
-            {step.content}
-          </StepCard>
+          <div key={step.title} className={openStep === i + 1 ? "" : "hidden"}>
+            <StepCard
+              number={i + 1}
+              title={step.title}
+              description={step.description}
+              status={step.status}
+              onRestart={step.onRestart}
+            >
+              {step.content}
+            </StepCard>
+          </div>
         ))}
+
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            disabled={openStep <= 1}
+            onClick={() => setManualOpenStep(openStep - 1)}
+            className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-30"
+          >
+            <ChevronLeft size={16} /> 이전 단계
+          </button>
+          <button
+            type="button"
+            disabled={openStep >= steps.length}
+            onClick={() => setManualOpenStep(openStep + 1)}
+            className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-30"
+          >
+            다음 단계 <ChevronRight size={16} />
+          </button>
+        </div>
       </main>
 
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />

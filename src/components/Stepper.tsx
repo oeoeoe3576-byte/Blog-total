@@ -10,17 +10,18 @@ const STEPS = [
 ];
 
 interface StepperProps {
-  currentStep: number; // 1-based
+  progressStep: number; // 1-based, how far the data has actually progressed
+  activeStep: number; // 1-based, which step's content is currently displayed
   onStepClick?: (step: number) => void;
 }
 
-export function Stepper({ currentStep, onStepClick }: StepperProps) {
+export function Stepper({ progressStep, activeStep, onStepClick }: StepperProps) {
   return (
     <ol className="flex w-full items-start justify-between gap-1 overflow-x-auto px-1 py-2">
       {STEPS.map((label, i) => {
         const step = i + 1;
         const status =
-          step < currentStep ? "done" : step === currentStep ? "active" : "todo";
+          step === activeStep ? "active" : step < progressStep ? "done" : "todo";
 
         return (
           <li key={label} className="flex flex-1 flex-col items-center gap-1">
