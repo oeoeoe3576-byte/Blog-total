@@ -71,6 +71,9 @@ export function Step4Images() {
   const [generatingSceneIds, setGeneratingSceneIds] = useState<Set<string>>(new Set());
   const [failedSceneIds, setFailedSceneIds] = useState<Set<string>>(new Set());
   const [sourceTab, setSourceTab] = useState<Record<string, SceneImageSource>>({});
+  // Gemini가 시도됐다가 실패해서 Pollinations/HuggingFace로 대체된 경우를 보여주는 진단용 메모.
+  // (실패해도 다른 무료 프로바이더가 성공하면 최종 결과는 "성공"이라 이유가 묻히던 문제 대응)
+  const [fallbackNotices, setFallbackNotices] = useState<Record<string, string>>({});
 
   if (!scenes || scenes.length === 0) {
     return (
@@ -240,6 +243,17 @@ export function Step4Images() {
         provider: result.provider,
         source: "ai",
         used: true,
+      });
+
+      const geminiSkip = result.skipped?.find((s) => s.provider === "gemini");
+      setFallbackNotices((prev) => {
+        const next = { ...prev };
+        if (geminiSkip) {
+          next[scene.id] = `Gemini가 실패해서 ${result.provider}(으)로 대체됐어요: ${geminiSkip.message}`;
+        } else {
+          delete next[scene.id];
+        }
+        return next;
       });
 
       if (refImageBase64 && !REFERENCE_CAPABLE.includes(result.provider as ImageProviderId)) {
@@ -468,6 +482,7 @@ export function Step4Images() {
             scene={scene}
             prompt={imagePrompts[scene.id]}
             onPromptChange={(entry) => setImagePrompt(scene.id, entry)}
+            fallbackNotice={fallbackNotices[scene.id]}
             images={sceneImages.filter((img) => img.sceneId === scene.id)}
             isGenerating={generatingSceneIds.has(scene.id)}
             sourceTab={sourceTab[scene.id] ?? "ai"}
@@ -564,6 +579,7 @@ interface SceneImageCardProps {
   scene: Scene;
   prompt?: { ko: string; en: string };
   onPromptChange: (entry: { ko: string; en: string }) => void;
+  fallbackNotice?: string;
   images: SceneImage[];
   isGenerating: boolean;
   sourceTab: SceneImageSource;
@@ -591,6 +607,7 @@ function SceneImageCard({
   scene,
   prompt,
   onPromptChange,
+  fallbackNotice,
   images,
   isGenerating,
   sourceTab,
@@ -644,6 +661,10 @@ function SceneImageCard({
       <p className="mb-2 text-sm font-semibold text-gray-700">
         📍 장면 ({scene.kind}) — {scene.headline}
       </p>
+
+      {fallbackNotice && (
+        <p className="mb-2 rounded-xl bg-amber-50 p-2 text-xs text-amber-700">⚠️ {fallbackNotice}</p>
+      )}
 
       {prompt && (
         <div className="mb-2 flex flex-col gap-1 rounded-xl bg-gray-50 p-2 text-xs">

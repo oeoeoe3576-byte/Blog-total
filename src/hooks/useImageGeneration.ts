@@ -22,7 +22,7 @@ export interface GenerateImageParams {
 }
 
 type ImageGenResult =
-  | { ok: true; blob: Blob; provider: string }
+  | { ok: true; blob: Blob; provider: string; skipped: { provider: string; message: string }[] }
   | { ok: false; error: ImageGenErrorInfo };
 
 /** /api/image를 호출하는 훅. 타임아웃 60초(오류 방지 규칙 13). */
@@ -65,6 +65,7 @@ export function useImageGeneration() {
         ok: true,
         blob: base64ToBlob(json.imageBase64, json.mime ?? "image/jpeg"),
         provider: json.provider,
+        skipped: Array.isArray(json.skipped) ? json.skipped : [],
       };
     } catch (err) {
       const aborted = err instanceof DOMException && err.name === "AbortError";

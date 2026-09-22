@@ -8,6 +8,8 @@ import type { ApiKeys, ProviderAdapter, ProviderError, ProviderMeta } from "./ty
 export interface ChainResult<Output> {
   output: Output;
   provider: ProviderMeta;
+  /** 최종 성공 전에 시도했다가 실패해서 건너뛴 프로바이더들(원인 진단용). */
+  skipped: { provider: string; message: string }[];
 }
 
 export interface RunChainOptions {
@@ -32,6 +34,7 @@ export async function runChain<Input, Output>(
   options: RunChainOptions = {},
 ): Promise<ChainResult<Output>> {
   let lastError: ProviderError | Error | null = null;
+  const skipped: { provider: string; message: string }[] = [];
 
   for (const adapter of adapters) {
     if (!adapter.isAvailable(keys)) continue;
@@ -45,9 +48,10 @@ export async function runChain<Input, Output>(
 
     try {
       const output = await adapter.run(input, keys);
-      return { output, provider: adapter.meta };
+      return { output, provider: adapter.meta, skipped };
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
+      skipped.push({ provider: adapter.meta.id, message: lastError.message });
       continue;
     }
   }

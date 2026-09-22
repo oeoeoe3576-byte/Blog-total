@@ -73,7 +73,7 @@ export async function POST(request: Request) {
   const adapters = order.map((id) => IMAGE_ADAPTERS[id]);
 
   try {
-    const { output: rawBuffer, provider } = await runChain(
+    const { output: rawBuffer, provider, skipped } = await runChain(
       adapters,
       { promptEn, aspect, refImageBase64, quality },
       keys,
@@ -86,6 +86,7 @@ export async function POST(request: Request) {
       imageBase64: jpeg.toString("base64"),
       mime: "image/jpeg",
       provider: provider.id,
+      skipped,
     });
   } catch (err) {
     const kind: ErrorKind = err instanceof ProviderError ? err.kind : "UNKNOWN";
