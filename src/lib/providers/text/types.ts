@@ -7,4 +7,6 @@ export interface TextGenInput {
   json?: boolean;
   /** 프로바이더별 모델명. 없으면 기본값 사용 */
   model?: string;
+  /** true면 (지원하는 프로바이더에 한해) 실시간 웹 검색으로 실제 상품 정보를 찾아 참고하게 한다 */
+  grounding?: boolean;
 }

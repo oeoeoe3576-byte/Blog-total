@@ -16,6 +16,7 @@ const bodySchema = z.object({
   system: z.string().min(1),
   user: z.string().min(1),
   json: z.boolean().optional(),
+  grounding: z.boolean().optional(),
   providerOrder: z.array(z.enum(["gemini", "openai"])).optional(),
 });
 
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { system, user, json: wantJson, providerOrder } = parsed.data;
+  const { system, user, json: wantJson, grounding, providerOrder } = parsed.data;
 
   const keys: ApiKeys = {
     gemini: request.headers.get("x-gemini-key") || undefined,
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
   try {
     const { output: stream, provider } = await runChain(
       adapters,
-      { system, user, json: wantJson },
+      { system, user, json: wantJson, grounding },
       keys,
     );
 

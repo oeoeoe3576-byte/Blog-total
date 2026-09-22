@@ -93,6 +93,7 @@ export function Step1Blog() {
       task: "blog",
       system,
       user,
+      grounding: true,
       providerOrder: ["gemini"],
       apiKeys: settings.apiKeys,
     });

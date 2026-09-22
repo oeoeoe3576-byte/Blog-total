@@ -63,11 +63,15 @@ export const geminiTextAdapter: ProviderAdapter<TextGenInput, ReadableStream<Uin
           generationConfig: {
             // 최신 flash 모델은 기본적으로 답하기 전에 내부적으로 "생각"하는 시간을 쓸 수 있는데,
             // 그동안은 스트리밍 토큰이 하나도 안 나와서 클라이언트 입장에선 그냥 멈춘 것처럼 보인다.
-            // 우리는 순수 글쓰기 작업이라 깊은 추론이 필요 없으므로 thinking을 꺼서 첫 토큰이
-            // 훨씬 빨리 나오게 한다(타임아웃 방지).
-            thinkingConfig: { thinkingBudget: 0 },
+            // 순수 글쓰기 작업은 깊은 추론이 필요 없으므로 thinking을 꺼서 첫 토큰이 훨씬 빨리
+            // 나오게 한다(타임아웃 방지). 다만 grounding(실시간 검색)을 쓸 때는 모델이 검색 여부/
+            // 시점을 판단해야 하니 thinking을 끄지 않는다.
+            ...(input.grounding ? {} : { thinkingConfig: { thinkingBudget: 0 } }),
             ...(input.json ? { responseMimeType: "application/json" } : {}),
           },
+          // 실제 상품명을 웹에서 검색해 진짜 가격/스펙/후기 정보를 찾아 쓰게 한다(할루시네이션 방지 +
+          // "사용자가 적어준 내용만 그대로 붙여쓴다"는 문제 해결). json 모드와는 동시에 못 쓴다.
+          ...(input.grounding && !input.json ? { tools: [{ googleSearch: {} }] } : {}),
         }),
       });
     } catch {

@@ -3,9 +3,9 @@
 import { useCallback, useRef, useState } from "react";
 import type { TextProviderId } from "@/lib/providers/text/meta";
 
-// 서버 라우트가 Edge 런타임 + maxDuration 120초로 늘어난 것에 맞춰 클라이언트 타임아웃도
-// 여유 있게 잡는다(이전엔 서버/클라이언트 둘 다 정확히 60초라서 둘 중 뭐가 먼저 끊겼는지도
-// 알기 어려운 레이스 컨디션이었다).
+// 서버 라우트의 maxDuration이 120초로 늘어난 것에 맞춰 클라이언트 타임아웃도 여유 있게 잡는다
+// (이전엔 서버/클라이언트 둘 다 정확히 60초라서 둘 중 뭐가 먼저 끊겼는지도 알기 어려운
+// 레이스 컨디션이었다).
 const TEXT_TIMEOUT_MS = 100_000;
 
 export interface TextGenErrorInfo {
@@ -19,6 +19,8 @@ export interface GenerateTextParams {
   system: string;
   user: string;
   json?: boolean;
+  /** true면 (지원하는 프로바이더에 한해) 실시간 웹 검색으로 실제 정보를 찾아 참고하게 한다 */
+  grounding?: boolean;
   providerOrder: TextProviderId[];
   apiKeys: { gemini?: string; openai?: string };
 }
@@ -62,6 +64,7 @@ export function useTextGeneration() {
           system: params.system,
           user: params.user,
           json: params.json,
+          grounding: params.grounding,
           providerOrder: params.providerOrder,
         }),
         signal: controller.signal,
