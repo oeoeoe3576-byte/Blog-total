@@ -14,8 +14,9 @@ export const DEFAULT_TEXT_PROVIDER_ORDER: TextProviderId[] = ["gemini", "openai"
 
 /** Gemini/OpenAI 텍스트 모델 기본값. 설정 화면에서 사용자가 바꿀 수 있다. */
 export const DEFAULT_TEXT_MODEL: Record<TextProviderId, string> = {
-  // 2026-09 기준 안정 버전. gemini-3.x flash가 더 최신이지만 무료 한도/문서가
-  // 상대적으로 덜 검증되어 기본값은 보수적으로 2.5-flash로 둔다(README "확인 필요" 참고).
-  gemini: "gemini-2.5-flash",
+  // gemini-2.5-flash는 2026-09 기준 신규 사용자에게 더 이상 제공되지 않는다(실사용 중 API가
+  // "This model models/gemini-2.5-flash is no longer available to new users. Please update
+  // your code to use models/gemini-3.6-flash" 에러를 반환하는 것을 확인함). gemini-3.6-flash로 갱신.
+  gemini: "gemini-3.6-flash",
   openai: "gpt-5-mini",
 };
