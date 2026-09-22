@@ -30,7 +30,10 @@ import { generateDemoImageBlob } from "@/fixtures/demo";
 import type { Scene, SceneImage, SceneImageSource } from "@/lib/types";
 import type { ImageProviderId } from "@/lib/providers/image/meta";
 
-const FREE_IMAGE_PROVIDERS: ImageProviderId[] = ["gemini", "pollinations", "huggingface"];
+// Pollinations는 키 없이 항상 "성공"으로 응답하는 경우가 많아서(품질과 무관하게), 순서상
+// 뒤에 있는 Hugging Face(FLUX.1-schnell, 무료치고 품질이 훨씬 좋음)까지 갈 일이 거의 없었다.
+// 품질이 더 나은 무료 옵션을 먼저 시도하도록 순서를 바꾼다.
+const FREE_IMAGE_PROVIDERS: ImageProviderId[] = ["gemini", "huggingface", "pollinations"];
 const REFERENCE_CAPABLE: ImageProviderId[] = ["gemini", "openai"];
 
 function newId(prefix: string): string {
