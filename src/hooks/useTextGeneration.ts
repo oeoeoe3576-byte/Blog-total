@@ -3,7 +3,10 @@
 import { useCallback, useRef, useState } from "react";
 import type { TextProviderId } from "@/lib/providers/text/meta";
 
-const TEXT_TIMEOUT_MS = 60_000;
+// 서버 라우트가 Edge 런타임 + maxDuration 120초로 늘어난 것에 맞춰 클라이언트 타임아웃도
+// 여유 있게 잡는다(이전엔 서버/클라이언트 둘 다 정확히 60초라서 둘 중 뭐가 먼저 끊겼는지도
+// 알기 어려운 레이스 컨디션이었다).
+const TEXT_TIMEOUT_MS = 100_000;
 
 export interface TextGenErrorInfo {
   kind: string;

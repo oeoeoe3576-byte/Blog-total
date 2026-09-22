@@ -5,8 +5,11 @@ import { ProviderError, type ApiKeys, type ErrorKind } from "@/lib/providers/typ
 import { TEXT_ADAPTERS } from "@/lib/providers/text";
 import { DEFAULT_TEXT_PROVIDER_ORDER, type TextProviderId } from "@/lib/providers/text/meta";
 
+// (참고) 이 Next.js 버전은 Edge 런타임이 deprecated라 nodejs가 기본/유일한 선택지다.
+// maxDuration은 배포 플랫폼(Vercel)이 실제 상한을 정하고 이 값은 상한 내에서만 적용된다.
+// 시스템 프롬프트가 길거나 모델 응답이 느릴 때 대비해 넉넉하게 선언해둔다.
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 const bodySchema = z.object({
   task: z.string().min(1),
