@@ -60,9 +60,14 @@ export const geminiTextAdapter: ProviderAdapter<TextGenInput, ReadableStream<Uin
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: input.user }] }],
           systemInstruction: { parts: [{ text: input.system }] },
-          ...(input.json
-            ? { generationConfig: { responseMimeType: "application/json" } }
-            : {}),
+          generationConfig: {
+            // 최신 flash 모델은 기본적으로 답하기 전에 내부적으로 "생각"하는 시간을 쓸 수 있는데,
+            // 그동안은 스트리밍 토큰이 하나도 안 나와서 클라이언트 입장에선 그냥 멈춘 것처럼 보인다.
+            // 우리는 순수 글쓰기 작업이라 깊은 추론이 필요 없으므로 thinking을 꺼서 첫 토큰이
+            // 훨씬 빨리 나오게 한다(타임아웃 방지).
+            thinkingConfig: { thinkingBudget: 0 },
+            ...(input.json ? { responseMimeType: "application/json" } : {}),
+          },
         }),
       });
     } catch {
