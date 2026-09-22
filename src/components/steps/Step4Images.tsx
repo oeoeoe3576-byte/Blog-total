@@ -348,6 +348,22 @@ export function Step4Images() {
     }
   };
 
+  /** 아직 이미지가 없는 장면들에 한 번에 고정된 상품 사진을 적용한다(AI 생성 없이, 즉시). */
+  const applyProductImageToAllScenes = () => {
+    if (!productImageKeys[0] || !scenes) return;
+    const targets = scenes.filter((s) => !sceneImages.some((img) => img.sceneId === s.id && img.used));
+    for (const scene of targets) {
+      addSceneImage({
+        id: newId("img"),
+        sceneId: scene.id,
+        blobKey: productImageKeys[0],
+        provider: "product",
+        source: "product",
+        used: true,
+      });
+    }
+  };
+
   const handleGenerateAll = async () => {
     setFailedSceneIds(new Set());
     const targets = scenes.filter((s) => !sceneImages.some((img) => img.sceneId === s.id && img.used));
@@ -421,10 +437,17 @@ export function Step4Images() {
         )}
 
         {productImageKeys.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             {productImageKeys.map((key) => (
               <PinnedThumb key={key} blobKey={key} onRemove={() => removeProductImageKey(key)} />
             ))}
+            <button
+              type="button"
+              onClick={applyProductImageToAllScenes}
+              className="flex items-center gap-1 rounded-xl border border-green-300 bg-white px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-100"
+            >
+              <Pin size={12} /> 아직 사진 없는 모든 장면에 이 사진 한번에 적용
+            </button>
           </div>
         )}
       </div>
@@ -488,7 +511,7 @@ export function Step4Images() {
             fallbackNotice={fallbackNotices[scene.id]}
             images={sceneImages.filter((img) => img.sceneId === scene.id)}
             isGenerating={generatingSceneIds.has(scene.id)}
-            sourceTab={sourceTab[scene.id] ?? "ai"}
+            sourceTab={sourceTab[scene.id] ?? "product"}
             onSourceTabChange={(tab) => setSourceTab((prev) => ({ ...prev, [scene.id]: tab }))}
             hasProductImage={productImageKeys.length > 0}
             productImageKey={productImageKeys[0]}
